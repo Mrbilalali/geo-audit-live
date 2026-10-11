@@ -104,7 +104,7 @@ export default function PromptKit() {
             <p style={{ color: "var(--muted)", fontSize: 14, marginBottom: 16 }}>Run each prompt once a month in ChatGPT, Perplexity and Gemini. Mark whether your business gets mentioned.</p>
             {groups.map((g) => (
               <div key={g.cat} style={{ marginBottom: 18 }}>
-                <h3 style={{ color: "var(--gold)", fontSize: 15, marginBottom: 10 }}>{g.cat}</h3>
+                <h3 style={{ color: "var(--accent)", fontSize: 15, marginBottom: 10 }}>{g.cat}</h3>
                 {g.items.map((p) => { n++; return (
                   <div className="promptitem" key={n}><span className="n">{n}</span><span>{p}</span></div>
                 ); })}
