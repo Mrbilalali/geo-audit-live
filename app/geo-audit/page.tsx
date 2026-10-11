@@ -1,7 +1,10 @@
 "use client";
 
+import Gate from "../../components/Gate";
+
 import { useState } from "react";
 import { saveAudit } from "../../lib/history";
+import { recordUse } from "../../lib/access";
 
 type Status = "pass" | "warn" | "fail";
 interface Check {
@@ -35,6 +38,7 @@ export default function GeoAudit() {
       if (!res.ok) throw new Error(data.error || "Audit failed");
       setResult(data);
       saveAudit({ url: data.url, score: data.score, tier: data.tier, at: data.fetchedAt });
+      recordUse("geo-audit");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Audit failed. Try again.");
     } finally {
@@ -46,6 +50,7 @@ export default function GeoAudit() {
   const fails = result?.checks.filter((c) => c.status !== "pass") ?? [];
 
   return (
+    <Gate tool="geo-audit" name="GEO Live Audit">
     <div className="wrap">
       <div className="pagehead no-print">
         <div className="badge">Live website check — no quiz</div>
@@ -129,5 +134,6 @@ export default function GeoAudit() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
