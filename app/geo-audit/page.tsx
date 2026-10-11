@@ -2,7 +2,8 @@
 
 import Gate from "../../components/Gate";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { saveAudit } from "../../lib/history";
 import { recordUse } from "../../lib/access";
 
@@ -18,13 +19,14 @@ interface Result {
 
 const TIER_COLOR: Record<string, string> = {
   "AI-Ready": "#3ecf8e",
-  "Strong — almost there": "#d4af37",
+  "Strong — almost there": "#38bdf8",
   "Partially visible": "#f5a623",
   "Invisible to AI": "#f0524d",
 };
 
-export default function GeoAudit() {
-  const [url, setUrl] = useState("");
+function AuditInner() {
+  const sp = useSearchParams();
+  const [url, setUrl] = useState(sp.get("url") || "");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
@@ -83,14 +85,14 @@ export default function GeoAudit() {
               <div className="ring" style={{ marginTop: 18 }}>
                 <svg width="200" height="200" viewBox="0 0 200 200">
                   <circle cx="100" cy="100" r="84" fill="none" stroke="#13263f" strokeWidth="15" />
-                  <circle cx="100" cy="100" r="84" fill="none" stroke="#d4af37" strokeWidth="15"
+                  <circle cx="100" cy="100" r="84" fill="none" stroke="#38bdf8" strokeWidth="15"
                     strokeLinecap="round" strokeDasharray="528"
                     strokeDashoffset={528 - (528 * result.score) / 100}
                     style={{ transition: "stroke-dashoffset 1.2s ease" }} />
                 </svg>
                 <div className="num"><b>{result.score}</b><span>/ 100</span></div>
               </div>
-              <div className="tier" style={{ color: TIER_COLOR[result.tier] ?? "#d4af37" }}>{result.tier}</div>
+              <div className="tier" style={{ color: TIER_COLOR[result.tier] ?? "#38bdf8" }}>{result.tier}</div>
               <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 8 }}>
                 {fails.length} of {result.checks.length} checks need attention · checked{" "}
                 {new Date(result.fetchedAt).toLocaleString()}
@@ -135,5 +137,13 @@ export default function GeoAudit() {
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
     </Gate>
+  );
+}
+
+export default function GeoAudit() {
+  return (
+    <Suspense fallback={<div className="wrap"><div className="card center">Loading…</div></div>}>
+      <AuditInner />
+    </Suspense>
   );
 }
