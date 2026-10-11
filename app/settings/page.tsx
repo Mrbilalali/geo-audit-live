@@ -9,6 +9,9 @@ const FIELDS = [
   { key: "openai_key", label: "OpenAI API Key", hint: "For AI-powered features (content AI, agents)", type: "password" },
   { key: "places_key", label: "Google Places API Key", hint: "For local lead & rank tools", type: "password" },
   { key: "deepseek_key", label: "DeepSeek API Key (optional)", hint: "Cheaper AI fallback", type: "password" },
+  { key: "wp_url", label: "WordPress Site URL", hint: "e.g. https://mysite.com — for one-click publishing", type: "text" },
+  { key: "wp_user", label: "WordPress Username", hint: "Your WP admin username", type: "text" },
+  { key: "wp_app_password", label: "WordPress Application Password", hint: "WP Dashboard → Users → Profile → Application Passwords", type: "password" },
 ] as const;
 
 const LS_KEY = KEYS_LS;
