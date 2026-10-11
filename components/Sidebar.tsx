@@ -60,7 +60,9 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: "AI Studio",
     items: [
       { href: "/ai-command", label: "Command Center", ico: "🧠", pro: true },
+      { href: "/ai-assistant", label: "AI Assistant", ico: "💭", pro: true },
       { href: "/ai-writer", label: "AI Writer", ico: "✍️", pro: true },
+      { href: "/ai-images", label: "AI Images", ico: "🎨", pro: true },
       { href: "/wp-publisher", label: "WP Publisher", ico: "🚀", pro: true },
       { href: "/thumbnail-maker", label: "Thumbnails", ico: "🖼️", pro: true },
     ],
@@ -114,12 +116,12 @@ export default function Sidebar() {
         {plan === "pro" ? (
           <>
             <div className="pname">⚡ Pro active</div>
-            <div className="pdesc">All 24 tools unlocked. Happy optimizing.</div>
+            <div className="pdesc">All 25 tools unlocked. Happy optimizing.</div>
           </>
         ) : (
           <>
             <div className="pname">Free plan</div>
-            <div className="pdesc">5 of 24 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
+            <div className="pdesc">5 of 25 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
             <Link href="/pricing" className="btn">Go Pro →</Link>
           </>
         )}
