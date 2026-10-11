@@ -66,7 +66,7 @@ export default function Pricing() {
           <div style={price}>${BILLING.monthlyDeal}<span style={{ fontSize: 18, color: "var(--muted)" }}>/mo</span> <span style={strike}>${BILLING.monthlyPrice}</span></div>
           <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "8px 0 16px" }}>Launch price — locked for early members.</p>
           <ul style={{ marginLeft: 18, fontSize: 14.5, color: "var(--muted)", flex: 1 }}>
-            <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>All 26 tools, unlimited</b></li>
+            <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>All 27 tools, unlimited</b></li>
             <li style={{ marginBottom: 8 }}>New tools included as they ship</li>
             <li style={{ marginBottom: 8 }}>BYO API keys for data tools</li>
             <li style={{ marginBottom: 8 }}>Cancel anytime</li>
