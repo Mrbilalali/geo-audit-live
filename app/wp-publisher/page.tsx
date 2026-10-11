@@ -2,6 +2,7 @@
 
 import Gate from "../../components/Gate";
 import Link from "next/link";
+import ApiRequired from "../../components/ApiRequired";
 import { useEffect, useState } from "react";
 import { getWpCreds } from "../../lib/ai";
 import { mdToWpHtml } from "../../lib/md";
@@ -91,14 +92,10 @@ export default function WpPublisher() {
         </div>
 
         {!creds ? (
-          <div className="card center" style={{ borderColor: "var(--amber)" }}>
-            <h2 style={{ fontSize: 19, marginBottom: 8 }}>🔌 Connect your WordPress site</h2>
-            <p style={{ color: "var(--muted)", fontSize: 14.5, maxWidth: 540, margin: "0 auto 16px" }}>
-              Add your site URL, username and an <b>Application Password</b> in Settings
-              (WP Dashboard → Users → Profile → Application Passwords). Credentials stay in your browser.
-            </p>
-            <Link href="/settings" className="btn" style={{ textDecoration: "none" }}>Open Settings →</Link>
-          </div>
+          <ApiRequired apiName="WordPress Site + Application Password">
+            Add your site URL, username and an <b>Application Password</b> in Settings
+            (WP Dashboard → Users → Profile → Application Passwords). Credentials stay in your browser.
+          </ApiRequired>
         ) : (
           <>
             <div className="card no-print">
