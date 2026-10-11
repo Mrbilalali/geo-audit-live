@@ -16,6 +16,7 @@ const CONNECTIONS = [
   { key: "google_client_id", label: "Google OAuth", desc: "Search Console + Analytics live data", pair: "google_client_secret" },
   { key: "moz_access_id", label: "Moz API", desc: "Domain Authority & Page Authority", pair: "moz_secret_key" },
   { key: "semrush_key", label: "Semrush API", desc: "Organic keywords & traffic data" },
+  { key: "pagespeed_key", label: "PageSpeed API", desc: "Optional — raises free daily quota" },
 ];
 
 export default function Profile() {
