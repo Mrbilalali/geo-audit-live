@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getPlan } from "../lib/access";
+import { fetchPlan, getPlan, signOut } from "../lib/access";
+import { useRouter } from "next/navigation";
 
 interface NavItem {
   href: string;
@@ -57,6 +58,12 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Monitoring",
+    items: [
+      { href: "/site-monitor", label: "Site Monitor", ico: "📡", pro: true },
+    ],
+  },
+  {
     label: "AI Studio",
     items: [
       { href: "/ai-command", label: "Command Center", ico: "🧠", pro: true },
@@ -70,6 +77,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Account",
     items: [
+      { href: "/profile", label: "Profile", ico: "👤" },
       { href: "/pricing", label: "Pricing", ico: "💎" },
       { href: "/settings", label: "Settings", ico: "⚙️" },
     ],
@@ -78,11 +86,35 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const router = useRouter();
   const [plan, setPlan] = useState<"free" | "pro">("free");
 
   useEffect(() => {
-    setPlan(getPlan());
+    let on = true;
+    fetchPlan().then((p) => { if (on) setPlan(p); });
+    return () => { on = false; };
   }, [path]);
+
+  async function doSignOut() {
+    await signOut();
+    setPlan("free");
+    router.push("/");
+    router.refresh();
+  }
+
+  const groups = GROUPS.map((g) =>
+    g.label === "Account"
+      ? {
+          ...g,
+          items: [
+            ...g.items,
+            plan === "pro"
+              ? { href: "/__logout", label: "Sign out", ico: "🚪" }
+              : { href: "/login", label: "Sign in", ico: "🔐" },
+          ],
+        }
+      : g
+  );
 
   return (
     <aside className="sidebar">
@@ -94,19 +126,26 @@ export default function Sidebar() {
       </Link>
 
       <nav>
-        {GROUPS.map((g) => (
+        {groups.map((g) => (
           <div key={g.label}>
             <div className="navgroup">{g.label}</div>
             {g.items.map((it) => (
-              <Link
-                key={it.href}
-                href={it.href}
-                className={"sidelink" + (path === it.href ? " on" : "")}
-              >
-                <span className="ico">{it.ico}</span>
-                {it.label}
-                {it.pro && plan === "free" && <span className="lock">🔒</span>}
-              </Link>
+              it.href === "/__logout" ? (
+                <button key={it.href} onClick={doSignOut} className="sidelink" style={{ width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: "inherit", font: "inherit" }}>
+                  <span className="ico">{it.ico}</span>
+                  {it.label}
+                </button>
+              ) : (
+                <Link
+                  key={it.href}
+                  href={it.href}
+                  className={"sidelink" + (path === it.href ? " on" : "")}
+                >
+                  <span className="ico">{it.ico}</span>
+                  {it.label}
+                  {"pro" in it && it.pro && plan === "free" && <span className="lock">🔒</span>}
+                </Link>
+              )
             ))}
           </div>
         ))}
@@ -116,12 +155,12 @@ export default function Sidebar() {
         {plan === "pro" ? (
           <>
             <div className="pname">⚡ Pro active</div>
-            <div className="pdesc">All 25 tools unlocked. Happy optimizing.</div>
+            <div className="pdesc">All 26 tools unlocked. Happy optimizing.</div>
           </>
         ) : (
           <>
             <div className="pname">Free plan</div>
-            <div className="pdesc">5 of 25 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
+            <div className="pdesc">5 of 26 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
             <Link href="/pricing" className="btn">Go Pro →</Link>
           </>
         )}
