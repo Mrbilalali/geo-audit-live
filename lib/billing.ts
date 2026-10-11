@@ -14,7 +14,7 @@ export const BILLING = {
 };
 
 // Free tier: tools anyone can use without a key.
-export const FREE_UNLIMITED = ["serp-preview", "readability"];
+export const FREE_UNLIMITED = ["serp-preview", "readability", "keyword-suggest"];
 // Free tier: monthly caps (per tool).
 export const FREE_MONTHLY_LIMIT: Record<string, number> = {
   "geo-audit": 3,
