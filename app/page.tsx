@@ -6,32 +6,32 @@ import { AuditRecord, clearHistory, getHistory } from "../lib/history";
 
 const TOOLS = [
   {
-    href: "/content-optimizer", tag: "Flagship engine", name: "Content Optimizer Pro",
+    href: "/content-optimizer", tag: "Flagship engine · PRO", name: "Content Optimizer Pro",
     desc: "Paste any article — 0–100 score against 20 semantic rules AI engines reward: direct answers, boolean/list question handling, entity focus, factual density, zero fluff. Filterable issues checklist.",
     cta: "Optimize my article →",
   },
   {
-    href: "/geo-audit", tag: "Live website check", name: "GEO Live Audit",
+    href: "/geo-audit", tag: "Live website check · 3 free/mo", name: "GEO Live Audit",
     desc: "Enter any URL — the server fetches the site live and scores whether ChatGPT, Perplexity, Gemini & Google AI Overviews can find and cite it. 15 real checks, evidence included.",
     cta: "Run an audit →",
   },
   {
-    href: "/schema-generator", tag: "Code generator", name: "Schema & Meta Kit",
+    href: "/schema-generator", tag: "Code generator · PRO", name: "Schema & Meta Kit",
     desc: "Enter your business details once — get copy-paste Organization + FAQ JSON-LD, an AI-friendly robots.txt block, and an llms.txt template. The exact fixes the audit asks for.",
     cta: "Generate code →",
   },
   {
-    href: "/content-checker", tag: "Content analysis", name: "Content GEO Checker",
+    href: "/content-checker", tag: "Content analysis · 3 free/mo", name: "Content GEO Checker",
     desc: "Paste any page's text — get an answer-first analysis: direct-answer opening, depth, question coverage, quotable numbers. Scored with concrete fixes.",
     cta: "Check my content →",
   },
   {
-    href: "/prompt-kit", tag: "Tracking kit", name: "AI Prompt Tracker Kit",
+    href: "/prompt-kit", tag: "Tracking kit · PRO", name: "AI Prompt Tracker Kit",
     desc: "Generates 30 tailored test prompts your customers really ask — run them monthly in ChatGPT, Perplexity & Gemini to measure whether AI mentions you. Printable tracking sheet included.",
     cta: "Build my prompt list →",
   },
   {
-    href: "/robots-validator", tag: "Validator", name: "robots.txt AI-Bot Validator",
+    href: "/robots-validator", tag: "Validator · PRO", name: "robots.txt AI-Bot Validator",
     desc: "Paste any robots.txt — instantly see whether GPTBot, PerplexityBot, ClaudeBot & Google-Extended are allowed or silently blocked. Or fetch it live from a URL.",
     cta: "Validate robots.txt →",
   },
@@ -41,7 +41,7 @@ const TOOLS = [
     cta: "Preview my snippet →",
   },
   {
-    href: "/heading-analyzer", tag: "Structure check", name: "Heading Analyzer",
+    href: "/heading-analyzer", tag: "Structure check · PRO", name: "Heading Analyzer",
     desc: "Paste a page's HTML — see its full H1–H6 outline and catch hierarchy mistakes (multiple H1s, skipped levels, empty headings) that confuse crawlers.",
     cta: "Analyze headings →",
   },
@@ -80,6 +80,12 @@ export default function Dashboard() {
             <span className="toolcta">{t.cta}</span>
           </Link>
         ))}
+      </div>
+
+      <div className="card no-print" style={{ borderColor: "var(--gold)", background: "linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.03))", textAlign: "center" }}>
+        <h2 style={{ fontSize: 22, marginBottom: 6 }}>Go <span style={{ color: "var(--gold)" }}>Pro</span> — unlock all 10 tools</h2>
+        <p style={{ color: "var(--muted)", fontSize: 15, marginBottom: 16 }}><b style={{ color: "var(--ink)" }}>$9/mo</b> launch price (reg. $29) · or <b style={{ color: "var(--ink)" }}>$100 lifetime</b> for the first 100 founding members (reg. $5,000)</p>
+        <Link href="/pricing" className="btn" style={{ textDecoration: "none" }}>See pricing →</Link>
       </div>
 
       {history.length > 0 && (
