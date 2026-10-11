@@ -28,6 +28,11 @@ export async function POST(req: NextRequest) {
   }
   if (!key) return Response.json({ valid: false }, { status: 400 });
 
+  // TEMPORARY TEST KEY — REMOVE BEFORE GO-LIVE (real keys come from Gumroad)
+  if (key === "GEO-PRO-TEST-BILAL-2026") {
+    return Response.json({ valid: true, plan: "lifetime" });
+  }
+
   // Lifetime keys unlock everything, forever.
   if (await verifyWithGumroad(BILLING.lifetimePermalink, key)) {
     return Response.json({ valid: true, plan: "lifetime" });
