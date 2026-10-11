@@ -40,6 +40,26 @@ export function getPlan(): Plan {
   return getLicense() ? "pro" : "free";
 }
 
+export async function signOut(): Promise<void> {
+  try {
+    await fetch("/api/auth/logout", { method: "POST" });
+  } catch {
+    /* noop */
+  }
+  clearLicense();
+}
+
+export async function fetchPlan(): Promise<Plan> {
+  try {
+    const r = await fetch("/api/auth/session");
+    const s = await r.json();
+    if (s.plan === "pro") return "pro";
+  } catch {
+    /* noop */
+  }
+  return getPlan();
+}
+
 function monthKey(): string {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth()}`;
