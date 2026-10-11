@@ -8,6 +8,12 @@ import { getPlan } from "../lib/access";
 const NAMES: Record<string, string> = {
   "/": "Dashboard",
   "/geo-audit": "Live Audit",
+  "/entity-extractor": "Entity Extractor",
+  "/ngram-analyzer": "N-gram Analyzer",
+  "/brief-builder": "Brief Builder",
+  "/schema-validator": "Schema Validator",
+  "/sitemap-tools": "Sitemap Tools",
+  "/bulk-meta": "Bulk Meta",
   "/content-optimizer": "Optimizer Pro",
   "/schema-generator": "Schema Kit",
   "/content-checker": "Content Checker",
