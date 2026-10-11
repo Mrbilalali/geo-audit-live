@@ -53,7 +53,7 @@ export default function Pricing() {
           <div className="center" style={{ marginTop: 18 }}><span style={{ color: "var(--muted)", fontSize: 14 }}>You're on Free right now</span></div>
         </div>
 
-        <div style={{ ...card, borderColor: "var(--gold)", boxShadow: "0 0 40px rgba(212,175,55,.12)" }}>
+        <div style={{ ...card, borderColor: "var(--accent)", boxShadow: "0 0 40px rgba(56,189,248,.12)" }}>
           <span className="tooltag">Most popular</span>
           <div style={price}>${BILLING.monthlyDeal}<span style={{ fontSize: 18, color: "var(--muted)" }}>/mo</span> <span style={strike}>${BILLING.monthlyPrice}</span></div>
           <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "8px 0 16px" }}>Launch price — locked for early members.</p>
