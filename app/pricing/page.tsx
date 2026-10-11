@@ -1,23 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { checkoutUrl, setLicense, verifyKey } from "../../lib/access";
+import { useRouter } from "next/navigation";
+import { checkoutUrl, setLicense } from "../../lib/access";
 import { BILLING } from "../../lib/billing";
 
 export default function Pricing() {
   const [key, setKey] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   async function unlock() {
     if (!key.trim() || busy) return;
     setBusy(true); setMsg("");
     try {
-      const r = await verifyKey(key.trim());
-      if (r.valid) {
-        setLicense({ key: key.trim(), plan: r.plan === "lifetime" ? "lifetime" : "monthly", at: Date.now() });
-        setMsg("Key accepted — Pro unlocked on this device. Enjoy the toolkit.");
+      const r = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: key.trim() }),
+      });
+      const d = await r.json();
+      if (r.ok && d.ok) {
+        setLicense({ key: key.trim(), plan: d.plan === "lifetime" ? "lifetime" : "monthly", at: Date.now() });
+        setMsg("Key accepted — Pro unlocked. Redirecting…");
         setKey("");
+        setTimeout(() => router.push("/"), 900);
       } else {
         setMsg("That key didn't verify. Check it against the key Gumroad emailed you, or contact support.");
       }
@@ -58,7 +66,7 @@ export default function Pricing() {
           <div style={price}>${BILLING.monthlyDeal}<span style={{ fontSize: 18, color: "var(--muted)" }}>/mo</span> <span style={strike}>${BILLING.monthlyPrice}</span></div>
           <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "8px 0 16px" }}>Launch price — locked for early members.</p>
           <ul style={{ marginLeft: 18, fontSize: 14.5, color: "var(--muted)", flex: 1 }}>
-            <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>All 25 tools, unlimited</b></li>
+            <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>All 26 tools, unlimited</b></li>
             <li style={{ marginBottom: 8 }}>New tools included as they ship</li>
             <li style={{ marginBottom: 8 }}>BYO API keys for data tools</li>
             <li style={{ marginBottom: 8 }}>Cancel anytime</li>
