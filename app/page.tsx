@@ -1,132 +1,109 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { AuditRecord, clearHistory, getHistory } from "../lib/history";
 
-type Status = "pass" | "warn" | "fail";
-interface Check {
-  id: string; category: string; name: string; weight: number;
-  status: Status; evidence: string; fix: string;
-}
-interface Result {
-  url: string; origin: string; score: number; tier: string;
-  fetchedAt: string; checks: Check[]; error?: string;
-}
+const TOOLS = [
+  {
+    href: "/geo-audit", tag: "Live website check", name: "GEO Live Audit",
+    desc: "Enter any URL — the server fetches the site live and scores whether ChatGPT, Perplexity, Gemini & Google AI Overviews can find and cite it. 15 real checks, evidence included.",
+    cta: "Run an audit →",
+  },
+  {
+    href: "/schema-generator", tag: "Code generator", name: "Schema & Meta Kit",
+    desc: "Enter your business details once — get copy-paste Organization + FAQ JSON-LD, an AI-friendly robots.txt block, and an llms.txt template. The exact fixes the audit asks for.",
+    cta: "Generate code →",
+  },
+  {
+    href: "/content-checker", tag: "Content analysis", name: "Content GEO Checker",
+    desc: "Paste any page's text — get an answer-first analysis: direct-answer opening, depth, question coverage, quotable numbers. Scored with concrete fixes.",
+    cta: "Check my content →",
+  },
+  {
+    href: "/prompt-kit", tag: "Tracking kit", name: "AI Prompt Tracker Kit",
+    desc: "Generates 30 tailored test prompts your customers really ask — run them monthly in ChatGPT, Perplexity & Gemini to measure whether AI mentions you. Printable tracking sheet included.",
+    cta: "Build my prompt list →",
+  },
+  {
+    href: "/robots-validator", tag: "Validator", name: "robots.txt AI-Bot Validator",
+    desc: "Paste any robots.txt — instantly see whether GPTBot, PerplexityBot, ClaudeBot & Google-Extended are allowed or silently blocked. Or fetch it live from a URL.",
+    cta: "Validate robots.txt →",
+  },
+  {
+    href: "/serp-preview", tag: "SEO classic", name: "SERP Preview",
+    desc: "Type your title, URL and meta description — see exactly how Google will show your page on desktop and mobile, with length and keyword checks.",
+    cta: "Preview my snippet →",
+  },
+  {
+    href: "/heading-analyzer", tag: "Structure check", name: "Heading Analyzer",
+    desc: "Paste a page's HTML — see its full H1–H6 outline and catch hierarchy mistakes (multiple H1s, skipped levels, empty headings) that confuse crawlers.",
+    cta: "Analyze headings →",
+  },
+  {
+    href: "/readability", tag: "Content metrics", name: "Readability & Keywords",
+    desc: "Paste any text — Flesch reading score, grade level, top keywords and sentence stats. AI engines quote clear, focused content.",
+    cta: "Analyze text →",
+  },
+];
 
-const TIER_COLOR: Record<string, string> = {
-  "AI-Ready": "#3ecf8e",
-  "Strong — almost there": "#d4af37",
-  "Partially visible": "#f5a623",
-  "Invisible to AI": "#f0524d",
-};
-
-export default function Home() {
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<Result | null>(null);
-  const [error, setError] = useState("");
-
-  async function run() {
-    if (!url.trim() || loading) return;
-    setLoading(true); setError(""); setResult(null);
-    try {
-      const res = await fetch(`/api/audit?url=${encodeURIComponent(url.trim())}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Audit failed");
-      setResult(data);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Audit failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const cats = result ? [...new Set(result.checks.map((c) => c.category))] : [];
-  const fails = result?.checks.filter((c) => c.status !== "pass") ?? [];
+export default function Dashboard() {
+  const [history, setHistory] = useState<AuditRecord[]>([]);
+  useEffect(() => { setHistory(getHistory()); }, []);
 
   return (
     <div className="wrap">
-      <header className="center no-print" style={{ padding: "36px 0 8px" }}>
-        <div className="badge">Live website check — no quiz</div>
-        <h1 className="hero">GEO Live Audit<br /><span className="g">Real AI Visibility Score</span></h1>
+      <header className="center" style={{ padding: "40px 0 10px" }}>
+        <div className="badge">100% SEO / GEO · 8 working tools</div>
+        <h1 className="hero">
+          Get cited by <span className="g">ChatGPT,</span>
+          <br />
+          <span className="g">Perplexity &amp; Google AI</span>
+        </h1>
         <p className="sub">
-          Enter any website URL. This tool fetches the site <b>live</b> and checks whether
-          ChatGPT, Perplexity, Gemini &amp; Google AI Overviews can find — and cite — it.
+          A complete Generative Engine Optimization toolkit. Audit your site, generate the fix code,
+          check your content, and track your AI visibility month after month.
         </p>
       </header>
 
-      <div className="card no-print">
-        <div className="urlrow">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && run()}
-            placeholder="e.g. example.com"
-            aria-label="Website URL"
-          />
-          <button className="btn" onClick={run} disabled={loading}>
-            {loading ? (<><span className="spin" /> Auditing…</>) : "Run live audit →"}
-          </button>
-        </div>
-        {error && <div className="err">{error}</div>}
-        {loading && <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 12 }}>Fetching robots.txt, llms.txt, sitemap and homepage…</p>}
+      <div className="toolgrid">
+        {TOOLS.map((t) => (
+          <Link key={t.href} href={t.href} className="toolcard">
+            <span className="tooltag">{t.tag}</span>
+            <h2>{t.name}</h2>
+            <p>{t.desc}</p>
+            <span className="toolcta">{t.cta}</span>
+          </Link>
+        ))}
       </div>
 
-      {result && (
-        <>
-          <div className="card">
-            <div className="sitehead">
-              <div className="u">{result.url}</div>
-              <div className="ring" style={{ marginTop: 18 }}>
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle cx="100" cy="100" r="84" fill="none" stroke="#13263f" strokeWidth="15" />
-                  <circle cx="100" cy="100" r="84" fill="none" stroke="#d4af37" strokeWidth="15"
-                    strokeLinecap="round" strokeDasharray="528"
-                    strokeDashoffset={528 - (528 * result.score) / 100}
-                    style={{ transition: "stroke-dashoffset 1.2s ease" }} />
-                </svg>
-                <div className="num"><b>{result.score}</b><span>/ 100</span></div>
-              </div>
-              <div className="tier" style={{ color: TIER_COLOR[result.tier] ?? "#d4af37" }}>{result.tier}</div>
-              <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 8 }}>
-                {fails.length} of {result.checks.length} checks need attention · checked{" "}
-                {new Date(result.fetchedAt).toLocaleString()}
-              </p>
-            </div>
+      {history.length > 0 && (
+        <div className="card">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h2 style={{ fontSize: 20 }}>Recent audits</h2>
+            <button className="tab no-print" onClick={() => { clearHistory(); setHistory([]); }}>Clear</button>
           </div>
-
-          {cats.map((cat) => {
-            const list = result.checks.filter((c) => c.category === cat);
-            const earned = list.reduce((s, c) => s + c.weight * (c.status === "pass" ? 1 : c.status === "warn" ? 0.5 : 0), 0);
-            const max = list.reduce((s, c) => s + c.weight, 0);
-            return (
-              <div key={cat}>
-                <h2 className="cathead">{cat}<span className="pts">{Math.round(earned)}/{max} pts</span></h2>
-                {list.map((c) => (
-                  <div className="check" key={c.id}>
-                    <div className="hd">
-                      <span className={`dot ${c.status}`} />
-                      <h3>{c.name}</h3>
-                      <span className={`st ${c.status}`}>{c.status === "pass" ? "Pass" : c.status === "warn" ? "Warning" : "Failed"}</span>
-                    </div>
-                    <div className="ev">{c.evidence}</div>
-                    {c.status !== "pass" && <div className="fix"><b>Fix:</b> {c.fix}</div>}
-                  </div>
-                ))}
+          <div style={{ marginTop: 14 }}>
+            {history.slice(0, 6).map((h, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: "1px solid rgba(212,175,55,.08)", fontSize: 14.5 }}>
+                <span style={{ fontWeight: 800, color: h.score >= 80 ? "#3ecf8e" : h.score >= 55 ? "#d4af37" : "#f0524d", minWidth: 52 }}>{h.score}/100</span>
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.url}</span>
+                <span style={{ color: "var(--muted)", fontSize: 13 }}>{new Date(h.at).toLocaleDateString()}</span>
               </div>
-            );
-          })}
-
-          <div className="center no-print" style={{ marginTop: 26 }}>
-            <button className="btn" onClick={() => window.print()}>Download / print report</button>
+            ))}
           </div>
-
-          <p className="note">
-            How this works: the server fetches the site&apos;s robots.txt, llms.txt, sitemap.xml and homepage HTML
-            live, then runs {result.checks.length} real checks against 2026 Generative Engine Optimization best practices.
-            Nothing is guessed — every finding shows the evidence it was based on.
-          </p>
-        </>
+        </div>
       )}
+
+      <div className="card">
+        <h2 style={{ fontSize: 20, marginBottom: 8 }}>The GEO workflow</h2>
+        <ol style={{ marginLeft: 20, color: "var(--muted)", fontSize: 15 }}>
+          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Audit</b> — run the Live Audit on your site, get a real 0–100 AI-visibility score with evidence.</li>
+          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Fix the code</b> — generate JSON-LD, robots.txt and llms.txt with the Schema Kit; validate robots.txt separately any time.</li>
+          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Fix the content</b> — Content Checker, Headings, SERP Preview and Readability until every page is quotable.</li>
+          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Measure</b> — build your 30-prompt list with the Prompt Kit and re-audit monthly. History is saved on this device.</li>
+        </ol>
+      </div>
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
