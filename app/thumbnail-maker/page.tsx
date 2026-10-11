@@ -38,23 +38,46 @@ export default function ThumbnailMaker() {
   const [brand, setBrand] = useState("GEO Toolkit");
   const [tpl, setTpl] = useState(0);
   const [size, setSize] = useState(0);
+  const [bgImg, setBgImg] = useState<HTMLImageElement | null>(null);
 
   const T = TEMPLATES[tpl];
   const S = SIZES[size];
 
+  function onBgFile(f: File | undefined) {
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const im = new Image();
+      im.onload = () => setBgImg(im);
+      im.src = String(r.result);
+    };
+    r.readAsDataURL(f);
+  }
+
   useEffect(() => {
-    const cv = canvasRef.current;
-    if (!cv) return;
+    const cv = canvasRef.current;    if (!cv) return;
     const ctx = cv.getContext("2d");
     if (!ctx) return;
     const { w, h } = S;
 
     // background
-    const g = ctx.createLinearGradient(0, 0, w, h);
-    g.addColorStop(0, T.from);
-    g.addColorStop(1, T.to);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+    if (bgImg) {
+      // cover-fit uploaded image + dark overlay for text legibility
+      const scale = Math.max(w / bgImg.width, h / bgImg.height);
+      const dw = bgImg.width * scale, dh = bgImg.height * scale;
+      ctx.drawImage(bgImg, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      const og = ctx.createLinearGradient(0, 0, 0, h);
+      og.addColorStop(0, "rgba(2,8,18,.25)");
+      og.addColorStop(1, "rgba(2,8,18,.72)");
+      ctx.fillStyle = og;
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, T.from);
+      g.addColorStop(1, T.to);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    }
 
     // decorative circles
     ctx.globalAlpha = 0.14;
@@ -149,6 +172,12 @@ export default function ThumbnailMaker() {
                   <button key={s.name} className={"tab" + (size === i ? " on" : "")} onClick={() => setSize(i)}>{s.name}</button>
                 ))}
               </div>
+            </div>
+            <div className="field">
+              <label>Background image <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional — e.g. AI-generated)</span></label>
+              <input type="file" accept="image/*" onChange={(e) => onBgFile(e.target.files?.[0])}
+                style={{ background: "var(--bg2)", border: "1px solid var(--line)", borderRadius: 10, padding: 10, color: "var(--ink)", width: "100%" }} />
+              {bgImg && <button className="tab" style={{ marginTop: 8 }} onClick={() => setBgImg(null)}>Remove background</button>}
             </div>
             <button className="btn" onClick={download}>⬇ Download PNG</button>
           </div>
