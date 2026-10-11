@@ -152,7 +152,7 @@ export default function DomainIntel() {
 
         {ran && (
           <div className="dashcols">
-            {card("⚡ PageSpeed", "Google Core Web Vitals — free, no key needed",
+            {card("⚡ PageSpeed", "Google Core Web Vitals — free (optional key raises quota)",
               errors.pagespeed ? <p className="err">{errors.pagespeed}</p>
               : !psm || !psd ? <p style={{ color: "var(--muted)" }}><span className="spin" /> Loading…</p>
               : <>
