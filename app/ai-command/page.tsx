@@ -1,7 +1,7 @@
 "use client";
 
 import Gate from "../../components/Gate";
-import Link from "next/link";
+import ApiRequired from "../../components/ApiRequired";
 import { useState } from "react";
 import { callAi, getAiCreds, getWpCreds } from "../../lib/ai";
 import { mdToHtml, mdToWpHtml } from "../../lib/md";
@@ -166,13 +166,10 @@ export default function AiCommand() {
         </div>
 
         {noKey && (
-          <div className="card center" style={{ borderColor: "var(--amber)" }}>
-            <h2 style={{ fontSize: 19, marginBottom: 8 }}>🔑 Add your AI key first</h2>
-            <p style={{ color: "var(--muted)", fontSize: 14.5, maxWidth: 520, margin: "0 auto 16px" }}>
-              The command center runs on your OpenAI or DeepSeek key. Add it in Settings (stays in your browser).
-            </p>
-            <Link href="/settings" className="btn" style={{ textDecoration: "none" }}>Open Settings →</Link>
-          </div>
+          <ApiRequired apiName="OpenAI API Key or DeepSeek API Key">
+            The command center runs on your OpenAI or DeepSeek key. Publishing steps also need your WordPress
+            credentials. Add both in Settings — they stay in your browser.
+          </ApiRequired>
         )}
 
         {steps.length > 0 && (
