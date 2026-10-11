@@ -1,5 +1,8 @@
 "use client";
 
+import Gate from "../../components/Gate";
+import { recordUse } from "../../lib/access";
+
 import { useState } from "react";
 
 interface Finding {
@@ -93,6 +96,7 @@ export default function ContentChecker() {
   const color = score >= 80 ? "#3ecf8e" : score >= 55 ? "#d4af37" : score >= 30 ? "#f5a623" : "#f0524d";
 
   return (
+    <Gate tool="content-checker" name="Content GEO Checker">
     <div className="wrap">
       <div className="pagehead">
         <div className="badge">Content analysis</div>
@@ -139,5 +143,6 @@ export default function ContentChecker() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
