@@ -93,7 +93,7 @@ export default function ContentChecker() {
   const score = findings
     ? Math.round((findings.reduce((s, f) => s + f.weight * (f.status === "pass" ? 1 : f.status === "warn" ? 0.5 : 0), 0) / findings.reduce((s, f) => s + f.weight, 0)) * 100)
     : 0;
-  const color = score >= 80 ? "#3ecf8e" : score >= 55 ? "#d4af37" : score >= 30 ? "#f5a623" : "#f0524d";
+  const color = score >= 80 ? "#3ecf8e" : score >= 55 ? "#38bdf8" : score >= 30 ? "#f5a623" : "#f0524d";
 
   return (
     <Gate tool="content-checker" name="Content GEO Checker">
