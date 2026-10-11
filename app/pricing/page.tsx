@@ -78,7 +78,7 @@ export default function Pricing() {
 
         <div style={card}>
           <span className="tooltag">Founding members</span>
-          <div style={price}>${BILLING.lifetimeDeal} <span style={strike}>${BILLING.lifetimePrice}</span></div>
+          <div style={price}>${BILLING.lifetimeDeal} <span style={strike}>${BILLING.lifetimePrice.toLocaleString("en-US")}</span></div>
           <p style={{ color: "var(--muted)", fontSize: 14.5, margin: "8px 0 16px" }}>One payment. Yours forever. Only for the first {BILLING.lifetimeSeats} users.</p>
           <ul style={{ marginLeft: 18, fontSize: 14.5, color: "var(--muted)", flex: 1 }}>
             <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Everything in Pro, lifetime</b></li>
