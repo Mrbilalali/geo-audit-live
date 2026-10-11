@@ -21,6 +21,8 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Analyze",
     items: [
       { href: "/geo-audit", label: "Live Audit", ico: "🔍" },
+      { href: "/entity-extractor", label: "Entities", ico: "🏷️", pro: true },
+      { href: "/ngram-analyzer", label: "N-grams", ico: "🔤", pro: true },
       { href: "/heading-analyzer", label: "Headings", ico: "📑", pro: true },
       { href: "/readability", label: "Readability", ico: "📖" },
     ],
@@ -30,6 +32,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/content-optimizer", label: "Optimizer Pro", ico: "⚡", pro: true },
       { href: "/content-checker", label: "Content Checker", ico: "📝" },
+      { href: "/brief-builder", label: "Brief Builder", ico: "📋", pro: true },
       { href: "/serp-preview", label: "SERP Preview", ico: "🔎" },
     ],
   },
@@ -37,6 +40,9 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Technical",
     items: [
       { href: "/schema-generator", label: "Schema Kit", ico: "🧩", pro: true },
+      { href: "/schema-validator", label: "Schema Check", ico: "✅", pro: true },
+      { href: "/sitemap-tools", label: "Sitemaps", ico: "🗺️", pro: true },
+      { href: "/bulk-meta", label: "Bulk Meta", ico: "📦", pro: true },
       { href: "/robots-validator", label: "robots.txt", ico: "🤖", pro: true },
       { href: "/prompt-kit", label: "Prompt Kit", ico: "💬", pro: true },
     ],
@@ -90,12 +96,12 @@ export default function Sidebar() {
         {plan === "pro" ? (
           <>
             <div className="pname">⚡ Pro active</div>
-            <div className="pdesc">All 9 tools unlocked. Happy optimizing.</div>
+            <div className="pdesc">All 15 tools unlocked. Happy optimizing.</div>
           </>
         ) : (
           <>
             <div className="pname">Free plan</div>
-            <div className="pdesc">4 of 9 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
+            <div className="pdesc">4 of 15 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
             <Link href="/pricing" className="btn">Go Pro →</Link>
           </>
         )}
