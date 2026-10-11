@@ -70,7 +70,7 @@ export default function Readability() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
                 {stats.top.map(([k, c]) => (
                   <span key={k} style={{ border: "1px solid var(--line)", borderRadius: 99, padding: "6px 14px", fontSize: 13.5 }}>
-                    <b style={{ color: "var(--gold)" }}>{k}</b> <span style={{ color: "var(--muted)" }}>×{c}</span>
+                    <b style={{ color: "var(--accent)" }}>{k}</b> <span style={{ color: "var(--muted)" }}>×{c}</span>
                   </span>
                 ))}
               </div>
