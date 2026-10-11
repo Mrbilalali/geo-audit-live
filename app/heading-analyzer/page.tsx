@@ -1,5 +1,7 @@
 "use client";
 
+import Gate from "../../components/Gate";
+
 import { useState } from "react";
 
 interface H { level: number; text: string; }
@@ -35,6 +37,7 @@ export default function HeadingAnalyzer() {
   ] : [];
 
   return (
+    <Gate tool="heading-analyzer" name="Heading Analyzer">
     <div className="wrap">
       <div className="pagehead">
         <div className="badge">Structure check</div>
@@ -76,5 +79,6 @@ export default function HeadingAnalyzer() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
