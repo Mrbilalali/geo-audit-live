@@ -17,6 +17,7 @@ const FIELDS = [
   { key: "moz_access_id", label: "Moz API Access ID", hint: "moz.com → API — free tier available (Domain Authority, Page Authority)", type: "text" },
   { key: "moz_secret_key", label: "Moz API Secret Key", hint: "Pairs with the Moz Access ID", type: "password" },
   { key: "semrush_key", label: "Semrush API Key", hint: "Requires a Semrush plan with API units (organic data)", type: "password" },
+  { key: "pagespeed_key", label: "Google PageSpeed API Key", hint: "Optional — raises the free daily quota (Google Cloud Console → PageSpeed Insights API)", type: "password" },
 ] as const;
 
 const LS_KEY = KEYS_LS;
