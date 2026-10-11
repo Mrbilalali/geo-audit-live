@@ -59,5 +59,6 @@ export interface PageSpeedData {
 }
 
 export async function pageSpeed(url: string, strategy: "mobile" | "desktop" = "mobile"): Promise<PageSpeedData> {
-  return postSeo({ provider: "pagespeed", url, strategy });
+  const key = getApiKey("pagespeed_key");
+  return postSeo({ provider: "pagespeed", url, strategy, ...(key ? { api_key: key } : {}) });
 }
