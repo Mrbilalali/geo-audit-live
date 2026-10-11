@@ -27,8 +27,8 @@ export default function Gate({
         {access.kind === "limited" && (
           <div className="wrap no-print" style={{ paddingBottom: 0 }}>
             <div style={{ border: "1px solid var(--line)", borderRadius: 10, padding: "10px 16px", fontSize: 13.5, color: "var(--muted)", background: "var(--card)" }}>
-              Free plan: <b style={{ color: "var(--gold)" }}>{access.left} of {FREE_MONTHLY_LIMIT[tool]} free runs</b> left this month —{" "}
-              <Link href="/pricing" style={{ color: "var(--gold)", fontWeight: 700 }}>Go Pro for unlimited →</Link>
+              Free plan: <b style={{ color: "var(--accent)" }}>{access.left} of {FREE_MONTHLY_LIMIT[tool]} free runs</b> left this month —{" "}
+              <Link href="/pricing" style={{ color: "var(--accent)", fontWeight: 700 }}>Go Pro for unlimited →</Link>
             </div>
           </div>
         )}
@@ -39,10 +39,10 @@ export default function Gate({
 
   return (
     <div className="wrap">
-      <div className="card center" style={{ padding: "60px 28px", borderColor: "var(--gold)" }}>
+      <div className="card center" style={{ padding: "60px 28px", borderColor: "var(--accent)" }}>
         <div className="badge">Pro tool</div>
         <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 10 }}>
-          {name} <span style={{ color: "var(--gold)" }}>is Pro</span>
+          {name} <span style={{ color: "var(--accent)" }}>is Pro</span>
         </h1>
         <p style={{ color: "var(--muted)", maxWidth: 480, margin: "0 auto 8px" }}>
           {access.reason === "limit-reached"
@@ -56,7 +56,7 @@ export default function Gate({
           <Link href="/pricing" className="btn" style={{ textDecoration: "none", marginTop: 0 }}>See pricing →</Link>
         </div>
         <p style={{ marginTop: 18, fontSize: 13.5, color: "var(--muted)" }}>
-          Already subscribed? <Link href="/pricing#license" style={{ color: "var(--gold)", fontWeight: 700 }}>Enter your license key →</Link>
+          Already subscribed? <Link href="/pricing#license" style={{ color: "var(--accent)", fontWeight: 700 }}>Enter your license key →</Link>
         </p>
       </div>
     </div>
