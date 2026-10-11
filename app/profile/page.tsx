@@ -14,6 +14,8 @@ const CONNECTIONS = [
   { key: "dataforseo_login", label: "DataForSEO", desc: "Traffic Overview keyword data", pair: "dataforseo_password" },
   { key: "wp_url", label: "WordPress", desc: "One-click publishing", pair: "wp_app_password" },
   { key: "google_client_id", label: "Google OAuth", desc: "Search Console + Analytics live data", pair: "google_client_secret" },
+  { key: "moz_access_id", label: "Moz API", desc: "Domain Authority & Page Authority", pair: "moz_secret_key" },
+  { key: "semrush_key", label: "Semrush API", desc: "Organic keywords & traffic data" },
 ];
 
 export default function Profile() {
