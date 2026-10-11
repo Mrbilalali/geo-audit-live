@@ -8,6 +8,10 @@ import { getPlan } from "../lib/access";
 const NAMES: Record<string, string> = {
   "/": "Dashboard",
   "/geo-audit": "Live Audit",
+  "/keyword-suggest": "Keyword Suggest",
+  "/traffic-overview": "Traffic Overview",
+  "/gsc-analyzer": "GSC Analyzer",
+  "/backlink-analyzer": "Backlink Analyzer",
   "/entity-extractor": "Entity Extractor",
   "/ngram-analyzer": "N-gram Analyzer",
   "/brief-builder": "Brief Builder",
