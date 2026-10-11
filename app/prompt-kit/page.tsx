@@ -1,5 +1,7 @@
 "use client";
 
+import Gate from "../../components/Gate";
+
 import { useState } from "react";
 
 const TYPES = [
@@ -75,6 +77,7 @@ export default function PromptKit() {
 
   let n = 0;
   return (
+    <Gate tool="prompt-kit" name="AI Prompt Tracker Kit">
     <div className="wrap">
       <div className="pagehead">
         <div className="badge">Tracking kit</div>
@@ -131,5 +134,6 @@ export default function PromptKit() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
