@@ -4,13 +4,17 @@ import Gate from "../../components/Gate";
 import { useEffect, useState } from "react";
 import { callAi, getAiCreds } from "../../lib/ai";
 import { ensureAccessToken, gapi, getGoogleTokens } from "../../lib/google";
+import { Client, loadClients } from "../../lib/crm";
 
 const SITES_LS = "gtk_sites";
 const REPORTS_LS = "gtk_site_reports";
+const META_LS = "gtk_site_meta";
 
 interface Fail { name: string; evidence: string; fix: string; weight: number; }
 interface SiteReport { score: number; tier: string; fails: Fail[]; at: number; }
 interface GscStat { clicks: number; impressions: number; }
+interface HistPoint { t: number; score: number; issues: number; }
+interface SiteMeta { history: HistPoint[]; clientId: string; }
 
 function loadSites(): string[] {
   try {
@@ -30,6 +34,19 @@ function loadReports(): Record<string, SiteReport> {
 function saveReports(r: Record<string, SiteReport>): void {
   try { localStorage.setItem(REPORTS_LS, JSON.stringify(r)); } catch { /* noop */ }
 }
+function loadMeta(): Record<string, SiteMeta> {
+  try {
+    const raw = localStorage.getItem(META_LS);
+    const d = raw ? JSON.parse(raw) : {};
+    return d && typeof d === "object" ? d : {};
+  } catch { return {}; }
+}
+function saveMeta(m: Record<string, SiteMeta>): void {
+  try { localStorage.setItem(META_LS, JSON.stringify(m)); } catch { /* noop */ }
+}
+function metaFor(m: Record<string, SiteMeta>, url: string): SiteMeta {
+  return m[url] || { history: [], clientId: "" };
+}
 function normUrl(u: string): string {
   let s = u.trim().replace(/\/+$/, "");
   if (!/^https?:\/\//i.test(s)) s = "https://" + s;
@@ -42,6 +59,8 @@ function domainOf(u: string): string {
 export default function SiteMonitor() {
   const [sites, setSites] = useState<string[]>([]);
   const [reports, setReports] = useState<Record<string, SiteReport>>({});
+  const [meta, setMeta] = useState<Record<string, SiteMeta>>({});
+  const [clients, setClients] = useState<Client[]>([]);
   const [gscStats, setGscStats] = useState<Record<string, GscStat>>({});
   const [single, setSingle] = useState("");
   const [bulk, setBulk] = useState("");
@@ -49,6 +68,7 @@ export default function SiteMonitor() {
   const [checking, setChecking] = useState<string | null>(null);
   const [checkAll, setCheckAll] = useState(false);
   const [progress, setProgress] = useState("");
+  const [autoNote, setAutoNote] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [gscProps, setGscProps] = useState<string[]>([]);
   const [gscLoading, setGscLoading] = useState(false);
@@ -58,9 +78,32 @@ export default function SiteMonitor() {
   useEffect(() => {
     setSites(loadSites());
     setReports(loadReports());
+    setMeta(loadMeta());
+    setClients(loadClients());
     if (getGoogleTokens()) loadGscProps();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Continuous monitoring: auto re-check sites that are stale (>24h) — up to 5 at a time.
+  useEffect(() => {
+    if (sites.length === 0 || checkAll || checking) return;
+    const stale = sites.filter((u) => {
+      const rep = loadReports()[u];
+      return !rep || Date.now() - rep.at > 24 * 3600000;
+    });
+    if (stale.length === 0) return;
+    const batch = stale.slice(0, 5);
+    setAutoNote(`Auto-monitoring: re-checking ${batch.length} stale site${batch.length > 1 ? "s" : ""}…`);
+    (async () => {
+      for (const u of batch) {
+        setProgress(`Auto-check ${u.replace(/^https?:\/\//, "").slice(0, 30)}…`);
+        await checkSite(u);
+      }
+      setProgress("");
+      setAutoNote(stale.length > 5 ? `${stale.length - 5} more site(s) still stale — hit "Check all" when ready.` : "");
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sites.length]);
 
   async function loadGscProps() {
     try {
@@ -131,8 +174,25 @@ export default function SiteMonitor() {
         .sort((a: Fail, b: Fail) => b.weight - a.weight);
       const next = { ...loadReports(), [url]: { score: d.score, tier: d.tier, fails, at: Date.now() } };
       setReports(next); saveReports(next);
+      // history for trends + deltas
+      const mm = loadMeta();
+      const m = metaFor(mm, url);
+      const history = [...m.history, { t: Date.now(), score: d.score, issues: fails.length }].slice(-30);
+      mm[url] = { ...m, history };
+      setMeta(mm); saveMeta(mm);
     } catch { /* silent — row keeps old data */ }
     finally { setChecking(null); }
+  }
+
+  function assignClient(url: string, clientId: string) {
+    const mm = loadMeta();
+    const m = metaFor(mm, url);
+    mm[url] = { ...m, clientId };
+    setMeta(mm); saveMeta(mm);
+  }
+
+  function clientName(id: string): string {
+    return clients.find((c) => c.id === id)?.name || "";
   }
 
   async function checkAllSites() {
@@ -180,7 +240,7 @@ export default function SiteMonitor() {
         <div className="pagehead">
           <div className="badge">📡 Monitoring</div>
           <h1>Site <span className="g">Monitor</span></h1>
-          <p>All your sites in one dashboard — health scores, Search Console data & what to fix next.</p>
+          <p>All your sites in one dashboard — continuous health tracking, score trends, Search Console data & what to fix next.</p>
         </div>
 
         <div className="card no-print">
@@ -206,9 +266,12 @@ export default function SiteMonitor() {
             </div>
           )}
           {sites.length > 0 && (
-            <button className="btn" onClick={checkAllSites} disabled={checkAll}>
-              {checkAll ? <><span className="spin" />{progress}</> : `🔍 Check all ${sites.length} sites`}
-            </button>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <button className="btn" onClick={checkAllSites} disabled={checkAll}>
+                {checkAll ? <><span className="spin" />{progress}</> : `🔍 Check all ${sites.length} sites`}
+              </button>
+              {autoNote && <span style={{ fontSize: 13, color: "var(--muted)" }}>{autoNote}</span>}
+            </div>
           )}
         </div>
 
@@ -219,12 +282,16 @@ export default function SiteMonitor() {
           </div>
         ) : (
           <div className="card" style={{ overflowX: "auto" }}>
-            <table className="tracktable" style={{ minWidth: 720 }}>
-              <thead><tr><th>Site</th><th className="c">Score</th><th className="c">Issues</th><th className="c">GSC 28d</th><th className="c">Checked</th><th></th></tr></thead>
+            <table className="tracktable" style={{ minWidth: 860 }}>
+              <thead><tr><th>Site</th><th className="c">Score</th><th className="c">Trend</th><th className="c">Issues</th><th className="c">GSC 28d</th><th className="c">Client</th><th className="c">Checked</th><th></th></tr></thead>
               <tbody>
                 {sites.map((u) => {
                   const rep = reports[u];
                   const gs = gscStats[u];
+                  const hist = metaFor(meta, u).history;
+                  const prev = hist.length >= 2 ? hist[hist.length - 2] : null;
+                  const delta = prev && rep ? rep.score - prev.score : null;
+                  const bars = hist.slice(-10);
                   return (
                     <tr key={u}>
                       <td style={{ fontWeight: 600, fontSize: 13.5, wordBreak: "break-all" }}>{domainOf(u)}</td>
@@ -236,9 +303,37 @@ export default function SiteMonitor() {
                           }}>{rep.score}</span>
                         ) : <span style={{ color: "var(--muted)" }}>—</span>}
                       </td>
+                      <td className="c">
+                        {bars.length >= 2 ? (
+                          <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, height: 26 }} title={bars.map((b) => b.score).join(" → ")}>
+                            {bars.map((b, i) => (
+                              <span key={i} style={{
+                                width: 5, borderRadius: 2, display: "inline-block",
+                                height: Math.max(4, Math.round((b.score / 100) * 26)),
+                                background: b.score >= 80 ? "#3ecf8e" : b.score >= 55 ? "#38bdf8" : "#f0524d",
+                                opacity: i === bars.length - 1 ? 1 : 0.45,
+                              }} />
+                            ))}
+                          </span>
+                        ) : <span style={{ color: "var(--muted)" }}>—</span>}
+                        {delta !== null && delta !== 0 && (
+                          <div style={{ fontSize: 11.5, fontWeight: 700, color: delta > 0 ? "var(--green)" : "var(--red)" }}>
+                            {delta > 0 ? "▲" : "▼"} {Math.abs(delta)}
+                          </div>
+                        )}
+                      </td>
                       <td className="c">{rep ? (rep.fails.length === 0 ? <span style={{ color: "var(--green)" }}>0 ✓</span> : <b style={{ color: "var(--amber)" }}>{rep.fails.length}</b>) : "—"}</td>
                       <td className="c" style={{ fontSize: 12.5, color: "var(--muted)" }}>
                         {gs ? `${gs.clicks >= 1000 ? (gs.clicks / 1000).toFixed(1) + "K" : gs.clicks} clicks` : gscLoading ? "…" : "—"}
+                      </td>
+                      <td className="c no-print">
+                        {clients.length > 0 ? (
+                          <select value={metaFor(meta, u).clientId} onChange={(e) => assignClient(u, e.target.value)}
+                            style={{ width: "auto", maxWidth: 120, padding: "5px 6px", fontSize: 12 }} aria-label="Assign client">
+                            <option value="">—</option>
+                            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                        ) : <span style={{ color: "var(--muted)", fontSize: 12 }}>—</span>}
                       </td>
                       <td className="c" style={{ fontSize: 12.5, color: "var(--muted)" }}>{rep ? ago(rep.at) : "never"}</td>
                       <td className="c no-print" style={{ whiteSpace: "nowrap" }}>
