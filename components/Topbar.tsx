@@ -13,6 +13,8 @@ const NAMES: Record<string, string> = {
   "/gsc-analyzer": "GSC Analyzer",
   "/backlink-analyzer": "Backlink Analyzer",
   "/ai-command": "AI Command Center",
+  "/ai-assistant": "AI Assistant",
+  "/ai-images": "AI Images",
   "/ai-writer": "AI Writer",
   "/wp-publisher": "WP Publisher",
   "/thumbnail-maker": "Thumbnail Maker",
