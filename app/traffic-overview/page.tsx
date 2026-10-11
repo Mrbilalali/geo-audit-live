@@ -1,9 +1,9 @@
 "use client";
 
 import Gate from "../../components/Gate";
-import Link from "next/link";
 import { useState } from "react";
 import { getApiKey } from "../../lib/keys";
+import ApiRequired from "../../components/ApiRequired";
 
 interface Metrics {
   keywords: number;
@@ -98,14 +98,10 @@ export default function TrafficOverview() {
         </div>
 
         {noCreds && (
-          <div className="card center" style={{ borderColor: "var(--amber)" }}>
-            <h2 style={{ fontSize: 19, marginBottom: 8 }}>🔑 Connect DataForSEO to unlock</h2>
-            <p style={{ color: "var(--muted)", fontSize: 14.5, maxWidth: 520, margin: "0 auto 16px" }}>
-              Traffic data comes from DataForSEO (pay-per-request). Add your API login & password in Settings —
-              they stay in your browser and are only sent to DataForSEO with your requests.
-            </p>
-            <Link href="/settings" className="btn" style={{ textDecoration: "none" }}>Open Settings →</Link>
-          </div>
+          <ApiRequired apiName="DataForSEO API Login + Password">
+            Traffic data comes from DataForSEO (pay-per-request). Add your API login &amp; password in Settings —
+            they stay in your browser and are only sent to DataForSEO with your requests.
+          </ApiRequired>
         )}
 
         {m && (
