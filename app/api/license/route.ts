@@ -1,23 +1,10 @@
 import { NextRequest } from "next/server";
-import { BILLING } from "../../../lib/billing";
+import { verifyLicenseKey } from "../../../lib/license";
 
 export const runtime = "nodejs";
 
-async function verifyWithGumroad(permalink: string, key: string): Promise<boolean> {
-  try {
-    const form = new URLSearchParams({ product_permalink: permalink, license_key: key });
-    const r = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: form.toString(),
-    });
-    const d = await r.json();
-    return d && d.success === true;
-  } catch {
-    return false;
-  }
-}
-
+// Legacy license-check endpoint (used by older clients). New code should use
+// /api/auth/login which also mints a signed session cookie.
 export async function POST(req: NextRequest) {
   let key = "";
   try {
@@ -26,20 +13,7 @@ export async function POST(req: NextRequest) {
   } catch {
     /* noop */
   }
-  if (!key) return Response.json({ valid: false }, { status: 400 });
-
-  // TEMPORARY TEST KEY — REMOVE BEFORE GO-LIVE (real keys come from Gumroad)
-  if (key === "GEO-PRO-TEST-BILAL-2026") {
-    return Response.json({ valid: true, plan: "lifetime" });
-  }
-
-  // Lifetime keys unlock everything, forever.
-  if (await verifyWithGumroad(BILLING.lifetimePermalink, key)) {
-    return Response.json({ valid: true, plan: "lifetime" });
-  }
-  // Monthly subscription keys unlock while the subscription is active.
-  if (await verifyWithGumroad(BILLING.monthlyPermalink, key)) {
-    return Response.json({ valid: true, plan: "monthly" });
-  }
-  return Response.json({ valid: false });
+  const v = await verifyLicenseKey(key);
+  if (!v.valid) return Response.json({ valid: false });
+  return Response.json({ valid: true, plan: v.plan });
 }
