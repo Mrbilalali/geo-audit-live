@@ -85,16 +85,17 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ---------- Google PageSpeed Insights (free, no key needed) ----------
+    // ---------- Google PageSpeed Insights (free; key optional, raises quota) ----------
     if (provider === "pagespeed") {
-      const { url, strategy } = body;
+      const { url, strategy, api_key } = body;
       if (!url) return Response.json({ error: "URL required." }, { status: 400 });
       let u = url.trim();
       if (!/^https?:\/\//i.test(u)) u = "https://" + u;
       const strat = strategy === "desktop" ? "desktop" : "mobile";
+      const keyParam = api_key ? `&key=${encodeURIComponent(api_key)}` : "";
       const r = await fetch(
         `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(u)}` +
-          `&strategy=${strat}&category=performance&category=seo&category=accessibility&category=best-practices`,
+          `&strategy=${strat}&category=performance&category=seo&category=accessibility&category=best-practices${keyParam}`,
         { signal: ctrl.signal }
       );
       const d = await r.json();
