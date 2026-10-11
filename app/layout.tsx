@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/", label: "Dashboard" },
   { href: "/geo-audit", label: "Live Audit" },
+  { href: "/content-optimizer", label: "Optimizer" },
   { href: "/schema-generator", label: "Schema Kit" },
   { href: "/content-checker", label: "Content" },
   { href: "/prompt-kit", label: "Prompts" },
