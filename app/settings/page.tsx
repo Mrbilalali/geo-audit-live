@@ -12,6 +12,8 @@ const FIELDS = [
   { key: "wp_url", label: "WordPress Site URL", hint: "e.g. https://mysite.com — for one-click publishing", type: "text" },
   { key: "wp_user", label: "WordPress Username", hint: "Your WP admin username", type: "text" },
   { key: "wp_app_password", label: "WordPress Application Password", hint: "WP Dashboard → Users → Profile → Application Passwords", type: "password" },
+  { key: "google_client_id", label: "Google OAuth Client ID", hint: "Google Cloud Console → Credentials → OAuth client (for Search Console + Analytics connect)", type: "text" },
+  { key: "google_client_secret", label: "Google OAuth Client Secret", hint: "Pairs with the client ID above", type: "password" },
 ] as const;
 
 const LS_KEY = KEYS_LS;
