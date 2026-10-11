@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Access, checkAccess } from "../lib/access";
+import { Access, checkAccess, clearLicense, getLicense } from "../lib/access";
 import { BILLING, FREE_MONTHLY_LIMIT } from "../lib/billing";
+
+export const PRO_UNLIMITED: Access = { allowed: true, kind: "unlimited", left: Infinity };
 
 export default function Gate({
   tool,
@@ -17,7 +19,32 @@ export default function Gate({
   const [access, setAccess] = useState<Access | null>(null);
 
   useEffect(() => {
-    setAccess(checkAccess(tool));
+    let cancelled = false;
+    (async () => {
+      // 1. server session is the source of truth
+      try {
+        const r = await fetch("/api/auth/session");
+        const s = await r.json();
+        if (!cancelled && s.plan === "pro") { setAccess(PRO_UNLIMITED); return; }
+      } catch { /* fall through */ }
+      // 2. migrate a legacy localStorage license into a session cookie
+      const lic = getLicense();
+      if (lic) {
+        try {
+          const r = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: lic.key }),
+          });
+          const d = await r.json();
+          if (!cancelled && r.ok && d.ok) { setAccess(PRO_UNLIMITED); return; }
+          clearLicense();
+        } catch { /* fall through */ }
+      }
+      // 3. free-tier rules
+      if (!cancelled) setAccess(checkAccess(tool));
+    })();
+    return () => { cancelled = true; };
   }, [tool]);
 
   if (!access) return <div className="wrap"><div className="card center">Loading…</div></div>;
