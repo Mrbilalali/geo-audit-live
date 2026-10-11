@@ -36,8 +36,20 @@ export async function callAi(
   return d.text as string;
 }
 
-export function getWpCreds(): { site: string; user: string; appPassword: string } | null {
-  const site = getApiKey("wp_url");
+export async function generateImage(prompt: string, size = "1024x1024"): Promise<{ imageUrl: string; revised: string }> {
+  const apiKey = getApiKey("openai_key");
+  if (!apiKey) throw new Error("NO_KEY");
+  const r = await fetch("/api/ai", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "image", provider: "openai", apiKey, prompt, size }),
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.detail || d.error || "Image generation failed");
+  return { imageUrl: d.imageUrl, revised: d.revised };
+}
+
+export function getWpCreds(): { site: string; user: string; appPassword: string } | null {  const site = getApiKey("wp_url");
   const user = getApiKey("wp_user");
   const appPassword = getApiKey("wp_app_password");
   if (!site || !user || !appPassword) return null;
