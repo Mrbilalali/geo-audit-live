@@ -35,6 +35,7 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: "/gsc-analyzer", label: "GSC Analyzer", ico: "📊", pro: true },
       { href: "/backlink-analyzer", label: "Backlinks", ico: "🔗", pro: true },
+      { href: "/domain-intel", label: "Domain Intel", ico: "🎯", pro: true },
     ],
   },
   {
@@ -155,12 +156,12 @@ export default function Sidebar() {
         {plan === "pro" ? (
           <>
             <div className="pname">⚡ Pro active</div>
-            <div className="pdesc">All 26 tools unlocked. Happy optimizing.</div>
+            <div className="pdesc">All 27 tools unlocked. Happy optimizing.</div>
           </>
         ) : (
           <>
             <div className="pname">Free plan</div>
-            <div className="pdesc">5 of 26 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
+            <div className="pdesc">5 of 27 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
             <Link href="/pricing" className="btn">Go Pro →</Link>
           </>
         )}
