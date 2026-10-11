@@ -18,6 +18,7 @@ const NAV = [
   { href: "/serp-preview", label: "SERP" },
   { href: "/heading-analyzer", label: "Headings" },
   { href: "/readability", label: "Readability" },
+  { href: "/settings", label: "⚙ Settings" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
