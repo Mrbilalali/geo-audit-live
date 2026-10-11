@@ -6,6 +6,11 @@ import { AuditRecord, clearHistory, getHistory } from "../lib/history";
 
 const TOOLS = [
   {
+    href: "/content-optimizer", tag: "Flagship engine", name: "Content Optimizer Pro",
+    desc: "Paste any article — 0–100 score against 20 semantic rules AI engines reward: direct answers, boolean/list question handling, entity focus, factual density, zero fluff. Filterable issues checklist.",
+    cta: "Optimize my article →",
+  },
+  {
     href: "/geo-audit", tag: "Live website check", name: "GEO Live Audit",
     desc: "Enter any URL — the server fetches the site live and scores whether ChatGPT, Perplexity, Gemini & Google AI Overviews can find and cite it. 15 real checks, evidence included.",
     cta: "Run an audit →",
