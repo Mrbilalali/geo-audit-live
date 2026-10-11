@@ -14,6 +14,9 @@ const FIELDS = [
   { key: "wp_app_password", label: "WordPress Application Password", hint: "WP Dashboard → Users → Profile → Application Passwords", type: "password" },
   { key: "google_client_id", label: "Google OAuth Client ID", hint: "Google Cloud Console → Credentials → OAuth client (for Search Console + Analytics connect)", type: "text" },
   { key: "google_client_secret", label: "Google OAuth Client Secret", hint: "Pairs with the client ID above", type: "password" },
+  { key: "moz_access_id", label: "Moz API Access ID", hint: "moz.com → API — free tier available (Domain Authority, Page Authority)", type: "text" },
+  { key: "moz_secret_key", label: "Moz API Secret Key", hint: "Pairs with the Moz Access ID", type: "password" },
+  { key: "semrush_key", label: "Semrush API Key", hint: "Requires a Semrush plan with API units (organic data)", type: "password" },
 ] as const;
 
 const LS_KEY = KEYS_LS;
