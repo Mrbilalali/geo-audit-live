@@ -1,11 +1,11 @@
 "use client";
 
 import Gate from "../../components/Gate";
-import Link from "next/link";
+import ApiRequired from "../../components/ApiRequired";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { callAi, getAiCreds } from "../../lib/ai";
-import { mdToHtml } from "../../lib/md";
+import { callAi, getAiCreds, getWpCreds } from "../../lib/ai";
+import { mdToHtml, mdToWpHtml } from "../../lib/md";
 
 const WRITER_SYSTEM = `You are an expert SEO and GEO (Generative Engine Optimization) content writer. Write a complete, publication-ready article in Markdown.
 
@@ -27,24 +27,31 @@ export default function AiWriter() {
   const [error, setError] = useState("");
   const [article, setArticle] = useState("");
   const [noKey, setNoKey] = useState(false);
+  const [pubMsg, setPubMsg] = useState("");
   const router = useRouter();
+
+  async function generate(): Promise<string> {
+    const t = topic.trim();
+    const text = await callAi(
+      [
+        { role: "system", content: WRITER_SYSTEM },
+        { role: "user", content: `Write a ${kind.toLowerCase()} of about ${words} words on: "${t}". Use Markdown with ## headings.` },
+      ],
+      { provider: provider === "auto" ? undefined : provider, max_tokens: 6000, temperature: 0.7 }
+    );
+    if (!text) throw new Error("Empty response from AI.");
+    setArticle(text);
+    return text;
+  }
 
   async function run() {
     const t = topic.trim();
     if (!t || loading) return;
     if (!getAiCreds()) { setNoKey(true); return; }
     setNoKey(false);
-    setLoading(true); setError(""); setArticle("");
+    setLoading(true); setError(""); setPubMsg(""); setArticle("");
     try {
-      const text = await callAi(
-        [
-          { role: "system", content: WRITER_SYSTEM },
-          { role: "user", content: `Write a ${kind.toLowerCase()} of about ${words} words on: "${t}". Use Markdown with ## headings.` },
-        ],
-        { provider: provider === "auto" ? undefined : provider, max_tokens: 6000, temperature: 0.7 }
-      );
-      if (!text) throw new Error("Empty response from AI.");
-      setArticle(text);
+      await generate();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed.";
       setError(msg === "NO_KEY" ? "NO_KEY" : msg);
@@ -53,6 +60,40 @@ export default function AiWriter() {
       setLoading(false);
     }
   }
+
+  async function writeAndPublish() {
+    const t = topic.trim();
+    if (!t || loading) return;
+    if (!getAiCreds()) { setNoKey(true); return; }
+    const wp = getWpCreds();
+    if (!wp) {
+      setError("Connect your WordPress site in Settings first (WP Publisher needs it).");
+      return;
+    }
+    setNoKey(false);
+    setLoading(true); setError(""); setPubMsg(""); setArticle("");
+    try {
+      const text = await generate();
+      setPubMsg("Publishing to WordPress…");
+      const r = await fetch("/api/wp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...wp, action: "publish", title: t.replace(/\.$/, ""), content: mdToWpHtml(text), status: "draft" }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || d.error || "Publish failed");
+      setPubMsg(`✓ Draft published to WordPress! `);
+      setPubLink(d.link);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed.";
+      setError(msg === "NO_KEY" ? "NO_KEY" : msg);
+      if (msg === "NO_KEY") setNoKey(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const [pubLink, setPubLink] = useState("");
 
   function sendToPublisher() {
     if (!article) return;
@@ -109,21 +150,23 @@ export default function AiWriter() {
               <option value="deepseek">DeepSeek</option>
             </select>
           </div>
-          <button className="btn" onClick={run} disabled={loading || topic.trim().length < 3}>
-            {loading ? <><span className="spin" />Writing…</> : "✍️ Write article →"}
-          </button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button className="btn" onClick={run} disabled={loading || topic.trim().length < 3}>
+              {loading ? <><span className="spin" />Writing…</> : "✍️ Write article →"}
+            </button>
+            <button className="btn ghost" onClick={writeAndPublish} disabled={loading || topic.trim().length < 3}>
+              ✍️🚀 Write & publish as draft
+            </button>
+          </div>
+          {pubMsg && <p style={{ marginTop: 12, color: "var(--green)", fontWeight: 700 }}>{pubMsg}{pubLink && <a href={pubLink} target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>View draft →</a>}</p>}
           {error && error !== "NO_KEY" && <p className="err">{error}</p>}
         </div>
 
         {noKey && (
-          <div className="card center" style={{ borderColor: "var(--amber)" }}>
-            <h2 style={{ fontSize: 19, marginBottom: 8 }}>🔑 Add your AI key first</h2>
-            <p style={{ color: "var(--muted)", fontSize: 14.5, maxWidth: 520, margin: "0 auto 16px" }}>
-              The writer uses your own OpenAI or DeepSeek API key (BYO model — we never pay for your calls).
-              Paste it in Settings; it stays in your browser.
-            </p>
-            <Link href="/settings" className="btn" style={{ textDecoration: "none" }}>Open Settings →</Link>
-          </div>
+          <ApiRequired apiName="OpenAI API Key or DeepSeek API Key">
+            The writer uses your own OpenAI or DeepSeek API key (BYO model — we never pay for your calls).
+            Paste it in Settings; it stays in your browser.
+          </ApiRequired>
         )}
 
         {article && (
