@@ -60,8 +60,8 @@ export default function HeadingAnalyzer() {
           <h2 style={{ fontSize: 18, marginBottom: 12 }}>Outline ({heads.length} headings)</h2>
           <div style={{ marginBottom: 20 }}>
             {heads.map((h, i) => (
-              <div key={i} style={{ padding: "7px 0 7px " + (h.level - 1) * 26 + "px", borderBottom: "1px solid rgba(212,175,55,.08)", fontSize: 14.5 }}>
-                <span style={{ color: "var(--gold)", fontWeight: 700, marginRight: 10, fontSize: 12 }}>H{h.level}</span>
+              <div key={i} style={{ padding: "7px 0 7px " + (h.level - 1) * 26 + "px", borderBottom: "1px solid rgba(56,189,248,.08)", fontSize: 14.5 }}>
+                <span style={{ color: "var(--accent)", fontWeight: 700, marginRight: 10, fontSize: 12 }}>H{h.level}</span>
                 <span style={{ color: h.text ? "var(--ink)" : "var(--red)" }}>{h.text || "(empty)"}</span>
               </div>
             ))}
