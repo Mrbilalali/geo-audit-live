@@ -21,10 +21,19 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Analyze",
     items: [
       { href: "/geo-audit", label: "Live Audit", ico: "🔍" },
+      { href: "/keyword-suggest", label: "Keywords", ico: "🔑" },
+      { href: "/traffic-overview", label: "Traffic", ico: "📈", pro: true },
       { href: "/entity-extractor", label: "Entities", ico: "🏷️", pro: true },
       { href: "/ngram-analyzer", label: "N-grams", ico: "🔤", pro: true },
       { href: "/heading-analyzer", label: "Headings", ico: "📑", pro: true },
       { href: "/readability", label: "Readability", ico: "📖" },
+    ],
+  },
+  {
+    label: "Search Data",
+    items: [
+      { href: "/gsc-analyzer", label: "GSC Analyzer", ico: "📊", pro: true },
+      { href: "/backlink-analyzer", label: "Backlinks", ico: "🔗", pro: true },
     ],
   },
   {
@@ -96,12 +105,12 @@ export default function Sidebar() {
         {plan === "pro" ? (
           <>
             <div className="pname">⚡ Pro active</div>
-            <div className="pdesc">All 15 tools unlocked. Happy optimizing.</div>
+            <div className="pdesc">All 20 tools unlocked. Happy optimizing.</div>
           </>
         ) : (
           <>
             <div className="pname">Free plan</div>
-            <div className="pdesc">4 of 15 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
+            <div className="pdesc">5 of 20 tools · 3 audits/mo. Unlock everything for $9/mo.</div>
             <Link href="/pricing" className="btn">Go Pro →</Link>
           </>
         )}
