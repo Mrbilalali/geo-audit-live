@@ -200,7 +200,7 @@ export default function OptimizerPro() {
   const total = rules ? rules.reduce((s, r) => s + r.weight, 0) : 1;
   const earned = rules ? rules.reduce((s, r) => s + r.weight * (r.status === "pass" ? 1 : r.status === "warn" ? 0.5 : 0), 0) : 0;
   const score = Math.round((earned / total) * 100);
-  const color = score >= 80 ? "#3ecf8e" : score >= 55 ? "#d4af37" : score >= 30 ? "#f5a623" : "#f0524d";
+  const color = score >= 80 ? "#3ecf8e" : score >= 55 ? "#38bdf8" : score >= 30 ? "#f5a623" : "#f0524d";
   const shown = rules ? rules.filter((r) => filter === "all" || (filter === "issues" ? r.status !== "pass" : r.status === "pass")) : [];
   const issueCount = rules ? rules.filter((r) => r.status !== "pass").length : 0;
 
