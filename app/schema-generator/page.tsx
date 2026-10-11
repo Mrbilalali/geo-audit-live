@@ -1,5 +1,7 @@
 "use client";
 
+import Gate from "../../components/Gate";
+
 import { useMemo, useState } from "react";
 
 interface Faq { q: string; a: string; }
@@ -81,6 +83,7 @@ export default function SchemaKit() {
   ];
 
   return (
+    <Gate tool="schema-generator" name="Schema & Meta Kit">
     <div className="wrap">
       <div className="pagehead">
         <div className="badge">Code generator</div>
@@ -137,5 +140,6 @@ export default function SchemaKit() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
