@@ -12,6 +12,12 @@ const TOOLS = [
   { href: "/content-optimizer", label: "Optimizer Pro", ico: "⚡", desc: "20-rule semantic content scoring", chip: "#818cf8", access: "pro" as const },
   { href: "/schema-generator", label: "Schema Kit", ico: "🧩", desc: "JSON-LD, robots.txt, llms.txt", chip: "#2dd4bf", access: "pro" as const },
   { href: "/content-checker", label: "Content Checker", ico: "📝", desc: "Answer-first GEO analysis", chip: "#38bdf8", access: "limited" as const },
+  { href: "/entity-extractor", label: "Entity Extractor", ico: "🏷️", desc: "People, orgs & places in text", chip: "#818cf8", access: "pro" as const },
+  { href: "/ngram-analyzer", label: "N-gram Analyzer", ico: "🔤", desc: "Top words & phrases, density", chip: "#2dd4bf", access: "pro" as const },
+  { href: "/brief-builder", label: "Brief Builder", ico: "📋", desc: "Full SEO content briefs", chip: "#38bdf8", access: "pro" as const },
+  { href: "/schema-validator", label: "Schema Validator", ico: "✅", desc: "Validate JSON-LD blocks", chip: "#2dd4bf", access: "pro" as const },
+  { href: "/sitemap-tools", label: "Sitemap Tools", ico: "🗺️", desc: "Extract or generate sitemaps", chip: "#818cf8", access: "pro" as const },
+  { href: "/bulk-meta", label: "Bulk Meta", ico: "📦", desc: "Titles & metas for 10 URLs", chip: "#38bdf8", access: "pro" as const },
   { href: "/serp-preview", label: "SERP Preview", ico: "🔎", desc: "Google snippet preview", chip: "#2dd4bf", access: "free" as const },
   { href: "/heading-analyzer", label: "Headings", ico: "📑", desc: "H1–H6 structure analysis", chip: "#818cf8", access: "pro" as const },
   { href: "/readability", label: "Readability", ico: "📖", desc: "Flesch score + keywords", chip: "#38bdf8", access: "free" as const },
@@ -57,7 +63,7 @@ export default function Dashboard() {
   const avg = thisMonth.length
     ? Math.round(thisMonth.reduce((a, h) => a + h.score, 0) / thisMonth.length)
     : null;
-  const unlocked = plan === "pro" ? 9 : 4;
+  const unlocked = plan === "pro" ? 15 : 4;
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   function quickAudit() {
@@ -120,8 +126,8 @@ export default function Dashboard() {
                 <span className="metricico">🧰</span>
                 <div className="grow">
                   <div className="mk">Tools unlocked</div>
-                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/9</span></div>
-                  <div className="meter"><span style={{ width: `${(unlocked / 9) * 100}%` }} /></div>
+                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/15</span></div>
+                  <div className="meter"><span style={{ width: `${(unlocked / 15) * 100}%` }} /></div>
                 </div>
               </div>
               <div className="metricrow">
@@ -150,8 +156,8 @@ export default function Dashboard() {
             </div>
             <p style={{ color: "var(--muted)", fontSize: 13, margin: "6px 0 14px" }}>
               {plan === "pro"
-                ? "All 9 tools unlocked. New tools included as they ship."
-                : `Unlock all 9 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
+                ? "All 15 tools unlocked. New tools included as they ship."
+                : `Unlock all 15 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
             </p>
             {plan === "free" && (
               <Link href="/pricing" className="btn" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "11px", fontSize: 14 }}>
