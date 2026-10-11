@@ -17,6 +17,7 @@ const TOOLS = [
   { href: "/ai-assistant", label: "AI Assistant", ico: "💭", desc: "Muse-style SEO copilot", chip: "#2dd4bf", access: "pro" as const },
   { href: "/ai-images", label: "AI Images", ico: "🎨", desc: "DALL-E 3 image generation", chip: "#38bdf8", access: "pro" as const },
   { href: "/site-monitor", label: "Site Monitor", ico: "📡", desc: "Multi-site health dashboard", chip: "#2dd4bf", access: "pro" as const },
+  { href: "/domain-intel", label: "Domain Intel", ico: "🎯", desc: "Moz + Semrush + PageSpeed", chip: "#f59e0b", access: "pro" as const },
   { href: "/ai-writer", label: "AI Writer", ico: "✍️", desc: "GEO-optimized articles", chip: "#38bdf8", access: "pro" as const },
   { href: "/wp-publisher", label: "WP Publisher", ico: "🚀", desc: "Publish to WordPress in 1 click", chip: "#2dd4bf", access: "pro" as const },
   { href: "/thumbnail-maker", label: "Thumbnail Maker", ico: "🖼️", desc: "Blog & YouTube thumbnails", chip: "#818cf8", access: "pro" as const },
@@ -74,7 +75,7 @@ export default function Dashboard() {
   const avg = thisMonth.length
     ? Math.round(thisMonth.reduce((a, h) => a + h.score, 0) / thisMonth.length)
     : null;
-  const unlocked = plan === "pro" ? 26 : 5;
+  const unlocked = plan === "pro" ? 27 : 5;
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   function quickAudit() {
@@ -137,8 +138,8 @@ export default function Dashboard() {
                 <span className="metricico">🧰</span>
                 <div className="grow">
                   <div className="mk">Tools unlocked</div>
-                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/26</span></div>
-                  <div className="meter"><span style={{ width: `${(unlocked / 26) * 100}%` }} /></div>
+                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/27</span></div>
+                  <div className="meter"><span style={{ width: `${(unlocked / 27) * 100}%` }} /></div>
                 </div>
               </div>
               <div className="metricrow">
@@ -167,8 +168,8 @@ export default function Dashboard() {
             </div>
             <p style={{ color: "var(--muted)", fontSize: 13, margin: "6px 0 14px" }}>
               {plan === "pro"
-                ? "All 26 tools unlocked. New tools included as they ship."
-                : `Unlock all 26 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
+                ? "All 27 tools unlocked. New tools included as they ship."
+                : `Unlock all 27 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
             </p>
             {plan === "free" && (
               <Link href="/pricing" className="btn" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "11px", fontSize: 14 }}>
