@@ -59,7 +59,7 @@ export default function Dashboard() {
   return (
     <div className="wrap">
       <header className="center" style={{ padding: "40px 0 10px" }}>
-        <div className="badge">100% SEO / GEO · 8 working tools</div>
+        <div className="badge">100% SEO / GEO · 9 working tools</div>
         <h1 className="hero">
           Get cited by <span className="g">ChatGPT,</span>
           <br />
@@ -83,7 +83,7 @@ export default function Dashboard() {
       </div>
 
       <div className="card no-print" style={{ borderColor: "var(--gold)", background: "linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.03))", textAlign: "center" }}>
-        <h2 style={{ fontSize: 22, marginBottom: 6 }}>Go <span style={{ color: "var(--gold)" }}>Pro</span> — unlock all 10 tools</h2>
+        <h2 style={{ fontSize: 22, marginBottom: 6 }}>Go <span style={{ color: "var(--gold)" }}>Pro</span> — unlock all 9 tools</h2>
         <p style={{ color: "var(--muted)", fontSize: 15, marginBottom: 16 }}><b style={{ color: "var(--ink)" }}>$9/mo</b> launch price (reg. $29) · or <b style={{ color: "var(--ink)" }}>$100 lifetime</b> for the first 100 founding members (reg. $5,000)</p>
         <Link href="/pricing" className="btn" style={{ textDecoration: "none" }}>See pricing →</Link>
       </div>
