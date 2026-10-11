@@ -1,8 +1,14 @@
 "use client";
 
 import Gate from "../../components/Gate";
-import { useState } from "react";
+import ApiRequired from "../../components/ApiRequired";
+import GoogleSetup from "../../components/GoogleSetup";
+import { useEffect, useState } from "react";
 import { parseCsv, parseGsc, GscRow } from "../../lib/csv";
+import {
+  buildAuthUrl, clearGoogleTokens, ensureAccessToken, gapi,
+  getGoogleTokens, getOAuthCreds,
+} from "../../lib/google";
 
 const fmt = (n: number) =>
   n >= 1_000_000 ? (n / 1_000_000).toFixed(1) + "M"
@@ -13,6 +19,82 @@ export default function GscAnalyzer() {
   const [rows, setRows] = useState<GscRow[] | null>(null);
   const [fname, setFname] = useState("");
   const [error, setError] = useState("");
+  // live connection state
+  const [creds, setCreds] = useState<{ clientId: string; clientSecret: string } | null>(null);
+  const [connected, setConnected] = useState(false);
+  const [sites, setSites] = useState<string[]>([]);
+  const [site, setSite] = useState("");
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveError, setLiveError] = useState("");
+
+  useEffect(() => {
+    setCreds(getOAuthCreds());
+    setConnected(!!getGoogleTokens());
+  }, []);
+
+  async function connectGoogle() {
+    if (!creds) return;
+    window.location.href = buildAuthUrl(creds.clientId);
+  }
+
+  function disconnect() {
+    clearGoogleTokens();
+    setConnected(false); setSites([]); setSite("");
+  }
+
+  async function loadSites() {
+    setLiveError("");
+    try {
+      await ensureAccessToken();
+      const d = await gapi<{ siteEntry?: { siteUrl: string }[] }>("webmasters/v3/sites");
+      const list = (d.siteEntry || []).map((s) => s.siteUrl);
+      setSites(list);
+      if (list.length === 1) setSite(list[0]);
+      if (list.length === 0) setLiveError("No Search Console properties found on this Google account.");
+    } catch (e: unknown) {
+      setLiveError(e instanceof Error ? e.message : "Failed to list sites.");
+    }
+  }
+
+  async function loadLive() {
+    if (!site) return;
+    setLiveLoading(true); setLiveError(""); setError("");
+    try {
+      const end = new Date();
+      const start = new Date(Date.now() - 27 * 86400000);
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      const d = await gapi<{ rows?: { keys: string[]; clicks: number; impressions: number; ctr: number; position: number }[] }>(
+        `webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`,
+        {
+          method: "POST",
+          body: {
+            startDate: iso(start), endDate: iso(end),
+            dimensions: ["query"], rowLimit: 1000,
+            dataState: "final",
+          },
+        }
+      );
+      const live: GscRow[] = (d.rows || []).map((r) => ({
+        label: r.keys?.[0] || "(unknown)",
+        clicks: r.clicks || 0,
+        impressions: r.impressions || 0,
+        ctr: (r.ctr || 0) * 100,
+        position: r.position || 0,
+        section: "live",
+      }));
+      if (live.length === 0) {
+        setLiveError("No query data for the last 28 days on this property.");
+        setRows(null);
+      } else {
+        setRows(live);
+        setFname(`Live · ${site} · last 28 days`);
+      }
+    } catch (e: unknown) {
+      setLiveError(e instanceof Error ? e.message : "Failed to load live data.");
+    } finally {
+      setLiveLoading(false);
+    }
+  }
 
   function handleText(text: string, name: string) {
     setError("");
@@ -68,6 +150,52 @@ export default function GscAnalyzer() {
         </div>
 
         <div className="card no-print">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 16 }}>⚡ Live connection</div>
+              <p style={{ color: "var(--muted)", fontSize: 13.5, marginTop: 4 }}>
+                Pull real Performance data straight from Google — no CSV needed.
+              </p>
+            </div>
+            {connected && <button className="tab" onClick={disconnect}>Disconnect</button>}
+          </div>
+
+          {!creds ? (
+            <div style={{ marginTop: 12 }}>
+              <ApiRequired apiName="Google OAuth Client ID + Client Secret">
+                Connect your own Google Cloud OAuth client to read live Search Console data.
+                Tokens stay in your browser.
+              </ApiRequired>
+              <GoogleSetup />
+            </div>
+          ) : !connected ? (
+            <div style={{ marginTop: 12 }}>
+              <button className="btn" onClick={connectGoogle}>🔗 Connect Search Console →</button>
+              <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 10 }}>
+                You'll approve read-only access on Google, then return here automatically.
+              </p>
+            </div>
+          ) : (
+            <div style={{ marginTop: 12 }}>
+              <p style={{ color: "var(--green)", fontWeight: 700, fontSize: 14, marginBottom: 10 }}>✓ Google connected</p>
+              <div className="urlrow" style={{ marginTop: 0 }}>
+                <select value={site} onChange={(e) => setSite(e.target.value)} aria-label="Property"
+                  style={{ flex: 1, background: "var(--bg2)", border: "1px solid var(--line)", borderRadius: 10, padding: 12, color: "var(--ink)" }}>
+                  <option value="">{sites.length ? "Select property…" : "Load properties first ↓"}</option>
+                  {sites.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <button className="btn ghost" onClick={loadSites}>Load properties</button>
+                <button className="btn" onClick={loadLive} disabled={liveLoading || !site}>
+                  {liveLoading ? <><span className="spin" />Loading…</> : "Load 28-day data →"}
+                </button>
+              </div>
+              {liveError && <p className="err">{liveError}</p>}
+            </div>
+          )}
+        </div>
+
+        <div className="card no-print">
+          <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 10 }}>📄 Or upload a CSV export</div>
           <div className="field">
             <label>Upload GSC performance CSV</label>
             <input type="file" accept=".csv,text/csv" onChange={(e) => onFile(e.target.files?.[0])}
