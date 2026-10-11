@@ -9,6 +9,10 @@ import { BILLING } from "../lib/billing";
 
 const TOOLS = [
   { href: "/geo-audit", label: "Live Audit", ico: "🔍", desc: "15 live checks of any website", chip: "#38bdf8", access: "limited" as const },
+  { href: "/keyword-suggest", label: "Keyword Suggest", ico: "🔑", desc: "Live Google autocomplete ideas", chip: "#2dd4bf", access: "free" as const },
+  { href: "/traffic-overview", label: "Traffic Overview", ico: "📈", desc: "Traffic, keywords & backlinks", chip: "#818cf8", access: "pro" as const },
+  { href: "/gsc-analyzer", label: "GSC Analyzer", ico: "📊", desc: "Search Console CTR insights", chip: "#38bdf8", access: "pro" as const },
+  { href: "/backlink-analyzer", label: "Backlink Analyzer", ico: "🔗", desc: "Referring domains & anchors", chip: "#2dd4bf", access: "pro" as const },
   { href: "/content-optimizer", label: "Optimizer Pro", ico: "⚡", desc: "20-rule semantic content scoring", chip: "#818cf8", access: "pro" as const },
   { href: "/schema-generator", label: "Schema Kit", ico: "🧩", desc: "JSON-LD, robots.txt, llms.txt", chip: "#2dd4bf", access: "pro" as const },
   { href: "/content-checker", label: "Content Checker", ico: "📝", desc: "Answer-first GEO analysis", chip: "#38bdf8", access: "limited" as const },
@@ -63,7 +67,7 @@ export default function Dashboard() {
   const avg = thisMonth.length
     ? Math.round(thisMonth.reduce((a, h) => a + h.score, 0) / thisMonth.length)
     : null;
-  const unlocked = plan === "pro" ? 15 : 4;
+  const unlocked = plan === "pro" ? 20 : 5;
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   function quickAudit() {
@@ -126,8 +130,8 @@ export default function Dashboard() {
                 <span className="metricico">🧰</span>
                 <div className="grow">
                   <div className="mk">Tools unlocked</div>
-                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/15</span></div>
-                  <div className="meter"><span style={{ width: `${(unlocked / 15) * 100}%` }} /></div>
+                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/20</span></div>
+                  <div className="meter"><span style={{ width: `${(unlocked / 20) * 100}%` }} /></div>
                 </div>
               </div>
               <div className="metricrow">
@@ -156,8 +160,8 @@ export default function Dashboard() {
             </div>
             <p style={{ color: "var(--muted)", fontSize: 13, margin: "6px 0 14px" }}>
               {plan === "pro"
-                ? "All 15 tools unlocked. New tools included as they ship."
-                : `Unlock all 15 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
+                ? "All 20 tools unlocked. New tools included as they ship."
+                : `Unlock all 20 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
             </p>
             {plan === "free" && (
               <Link href="/pricing" className="btn" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "11px", fontSize: 14 }}>
