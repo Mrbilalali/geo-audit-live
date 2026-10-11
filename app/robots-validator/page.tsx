@@ -1,5 +1,7 @@
 "use client";
 
+import Gate from "../../components/Gate";
+
 import { useState } from "react";
 
 const AI_BOTS = ["GPTBot", "ChatGPT-User", "PerplexityBot", "ClaudeBot", "Google-Extended", "CCBot"];
@@ -48,6 +50,7 @@ export default function RobotsValidator() {
   }
 
   return (
+    <Gate tool="robots-validator" name="robots.txt Validator">
     <div className="wrap">
       <div className="pagehead">
         <div className="badge">Validator</div>
@@ -106,5 +109,6 @@ export default function RobotsValidator() {
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
     </div>
+    </Gate>
   );
 }
