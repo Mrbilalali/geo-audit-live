@@ -1,119 +1,204 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AuditRecord, clearHistory, getHistory } from "../lib/history";
+import { AuditRecord, getHistory } from "../lib/history";
+import { getPlan } from "../lib/access";
+import { BILLING } from "../lib/billing";
 
 const TOOLS = [
-  {
-    href: "/content-optimizer", tag: "Flagship engine · PRO", name: "Content Optimizer Pro",
-    desc: "Paste any article — 0–100 score against 20 semantic rules AI engines reward: direct answers, boolean/list question handling, entity focus, factual density, zero fluff. Filterable issues checklist.",
-    cta: "Optimize my article →",
-  },
-  {
-    href: "/geo-audit", tag: "Live website check · 3 free/mo", name: "GEO Live Audit",
-    desc: "Enter any URL — the server fetches the site live and scores whether ChatGPT, Perplexity, Gemini & Google AI Overviews can find and cite it. 15 real checks, evidence included.",
-    cta: "Run an audit →",
-  },
-  {
-    href: "/schema-generator", tag: "Code generator · PRO", name: "Schema & Meta Kit",
-    desc: "Enter your business details once — get copy-paste Organization + FAQ JSON-LD, an AI-friendly robots.txt block, and an llms.txt template. The exact fixes the audit asks for.",
-    cta: "Generate code →",
-  },
-  {
-    href: "/content-checker", tag: "Content analysis · 3 free/mo", name: "Content GEO Checker",
-    desc: "Paste any page's text — get an answer-first analysis: direct-answer opening, depth, question coverage, quotable numbers. Scored with concrete fixes.",
-    cta: "Check my content →",
-  },
-  {
-    href: "/prompt-kit", tag: "Tracking kit · PRO", name: "AI Prompt Tracker Kit",
-    desc: "Generates 30 tailored test prompts your customers really ask — run them monthly in ChatGPT, Perplexity & Gemini to measure whether AI mentions you. Printable tracking sheet included.",
-    cta: "Build my prompt list →",
-  },
-  {
-    href: "/robots-validator", tag: "Validator · PRO", name: "robots.txt AI-Bot Validator",
-    desc: "Paste any robots.txt — instantly see whether GPTBot, PerplexityBot, ClaudeBot & Google-Extended are allowed or silently blocked. Or fetch it live from a URL.",
-    cta: "Validate robots.txt →",
-  },
-  {
-    href: "/serp-preview", tag: "SEO classic", name: "SERP Preview",
-    desc: "Type your title, URL and meta description — see exactly how Google will show your page on desktop and mobile, with length and keyword checks.",
-    cta: "Preview my snippet →",
-  },
-  {
-    href: "/heading-analyzer", tag: "Structure check · PRO", name: "Heading Analyzer",
-    desc: "Paste a page's HTML — see its full H1–H6 outline and catch hierarchy mistakes (multiple H1s, skipped levels, empty headings) that confuse crawlers.",
-    cta: "Analyze headings →",
-  },
-  {
-    href: "/readability", tag: "Content metrics", name: "Readability & Keywords",
-    desc: "Paste any text — Flesch reading score, grade level, top keywords and sentence stats. AI engines quote clear, focused content.",
-    cta: "Analyze text →",
-  },
+  { href: "/geo-audit", label: "Live Audit", ico: "🔍", desc: "15 live checks of any website", chip: "#38bdf8", access: "limited" as const },
+  { href: "/content-optimizer", label: "Optimizer Pro", ico: "⚡", desc: "20-rule semantic content scoring", chip: "#818cf8", access: "pro" as const },
+  { href: "/schema-generator", label: "Schema Kit", ico: "🧩", desc: "JSON-LD, robots.txt, llms.txt", chip: "#2dd4bf", access: "pro" as const },
+  { href: "/content-checker", label: "Content Checker", ico: "📝", desc: "Answer-first GEO analysis", chip: "#38bdf8", access: "limited" as const },
+  { href: "/serp-preview", label: "SERP Preview", ico: "🔎", desc: "Google snippet preview", chip: "#2dd4bf", access: "free" as const },
+  { href: "/heading-analyzer", label: "Headings", ico: "📑", desc: "H1–H6 structure analysis", chip: "#818cf8", access: "pro" as const },
+  { href: "/readability", label: "Readability", ico: "📖", desc: "Flesch score + keywords", chip: "#38bdf8", access: "free" as const },
+  { href: "/robots-validator", label: "robots.txt", ico: "🤖", desc: "AI-bot allow/block verdicts", chip: "#2dd4bf", access: "pro" as const },
+  { href: "/prompt-kit", label: "Prompt Kit", ico: "💬", desc: "30 AI-visibility prompts", chip: "#818cf8", access: "pro" as const },
 ];
+
+function Gauge({ value }: { value: number | null }) {
+  const v = value ?? 0;
+  const C = 2 * Math.PI * 84;
+  const color = value === null ? "#33475f" : v >= 80 ? "#3ecf8e" : v >= 55 ? "#38bdf8" : "#f0524d";
+  return (
+    <div className="ring" style={{ width: 168, height: 168 }}>
+      <svg width="168" height="168" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="84" fill="none" stroke="rgba(139,163,196,.15)" strokeWidth="16" />
+        <circle cx="100" cy="100" r="84" fill="none" stroke={color} strokeWidth="16"
+          strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C - (C * v) / 100} />
+      </svg>
+      <div className="num">
+        <b style={{ fontSize: 44, color: value === null ? "var(--muted)" : color }}>{value === null ? "—" : v}</b>
+        <span>avg / 100</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [history, setHistory] = useState<AuditRecord[]>([]);
-  useEffect(() => { setHistory(getHistory()); }, []);
+  const [plan, setPlan] = useState<"free" | "pro">("free");
+  const [url, setUrl] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    setHistory(getHistory());
+    setPlan(getPlan());
+  }, []);
+
+  const mk = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()}`; };
+  const thisMonth = history.filter((h) => {
+    const d = new Date(h.at);
+    return `${d.getFullYear()}-${d.getMonth()}` === mk();
+  });
+  const avg = thisMonth.length
+    ? Math.round(thisMonth.reduce((a, h) => a + h.score, 0) / thisMonth.length)
+    : null;
+  const unlocked = plan === "pro" ? 9 : 4;
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+  function quickAudit() {
+    const u = url.trim();
+    if (!u) return;
+    router.push(`/geo-audit?url=${encodeURIComponent(u)}`);
+  }
 
   return (
-    <div className="wrap">
-      <header className="center" style={{ padding: "40px 0 10px" }}>
-        <div className="badge">100% SEO / GEO · 9 working tools</div>
-        <h1 className="hero">
-          Get cited by <span className="g">ChatGPT,</span>
-          <br />
-          <span className="g">Perplexity &amp; Google AI</span>
-        </h1>
-        <p className="sub">
-          A complete Generative Engine Optimization toolkit. Audit your site, generate the fix code,
-          check your content, and track your AI visibility month after month.
+    <div className="wrap" style={{ maxWidth: 1080 }}>
+      {/* header */}
+      <div className="dashhead">
+        <div>
+          <p style={{ color: "var(--muted)", fontSize: 13.5 }}>{today}</p>
+          <h1>Welcome to <span style={{ color: "var(--accent)" }}>GEO Toolkit</span></h1>
+          <p>Every tool you need to get cited by ChatGPT, Perplexity & Google AI.</p>
+        </div>
+        <Link href="/geo-audit" className="btn no-print" style={{ textDecoration: "none", marginTop: 0 }}>
+          ▶ Run site audit
+        </Link>
+      </div>
+
+      {/* quick audit */}
+      <div className="card no-print">
+        <div style={{ fontWeight: 800, fontSize: 16 }}>⚡ Quick audit</div>
+        <p style={{ color: "var(--muted)", fontSize: 13.5, marginTop: 4 }}>
+          Paste any URL — get its AI-visibility score in seconds.
         </p>
-      </header>
-
-      <div className="toolgrid">
-        {TOOLS.map((t) => (
-          <Link key={t.href} href={t.href} className="toolcard">
-            <span className="tooltag">{t.tag}</span>
-            <h2>{t.name}</h2>
-            <p>{t.desc}</p>
-            <span className="toolcta">{t.cta}</span>
-          </Link>
-        ))}
+        <div className="quickbar">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && quickAudit()}
+            placeholder="https://example.com"
+            aria-label="Website URL"
+          />
+          <button className="btn" onClick={quickAudit}>Audit →</button>
+        </div>
       </div>
 
-      <div className="card no-print" style={{ borderColor: "var(--gold)", background: "linear-gradient(135deg, rgba(212,175,55,.12), rgba(212,175,55,.03))", textAlign: "center" }}>
-        <h2 style={{ fontSize: 22, marginBottom: 6 }}>Go <span style={{ color: "var(--gold)" }}>Pro</span> — unlock all 9 tools</h2>
-        <p style={{ color: "var(--muted)", fontSize: 15, marginBottom: 16 }}><b style={{ color: "var(--ink)" }}>$9/mo</b> launch price (reg. $29) · or <b style={{ color: "var(--ink)" }}>$100 lifetime</b> for the first 100 founding members (reg. $5,000)</p>
-        <Link href="/pricing" className="btn" style={{ textDecoration: "none" }}>See pricing →</Link>
-      </div>
-
-      {history.length > 0 && (
-        <div className="card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h2 style={{ fontSize: 20 }}>Recent audits</h2>
-            <button className="tab no-print" onClick={() => { clearHistory(); setHistory([]); }}>Clear</button>
-          </div>
-          <div style={{ marginTop: 14 }}>
-            {history.slice(0, 6).map((h, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: "1px solid rgba(212,175,55,.08)", fontSize: 14.5 }}>
-                <span style={{ fontWeight: 800, color: h.score >= 80 ? "#3ecf8e" : h.score >= 55 ? "#d4af37" : "#f0524d", minWidth: 52 }}>{h.score}/100</span>
-                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.url}</span>
-                <span style={{ color: "var(--muted)", fontSize: 13 }}>{new Date(h.at).toLocaleDateString()}</span>
+      <div className="dashcols">
+        {/* site health */}
+        <div className="card" style={{ marginTop: 0 }}>
+          <div style={{ fontWeight: 800, fontSize: 16 }}>Site health</div>
+          <p style={{ color: "var(--muted)", fontSize: 13, marginBottom: 8 }}>
+            Based on your saved audits this month
+          </p>
+          <div style={{ display: "flex", gap: 26, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+            <Gauge value={avg} />
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div className="metricrow">
+                <span className="metricico">🔍</span>
+                <div className="grow">
+                  <div className="mk">Audits this month</div>
+                  <div className="mv">{thisMonth.length}</div>
+                  <div className="meter"><span style={{ width: `${Math.min(100, (thisMonth.length / 10) * 100)}%` }} /></div>
+                </div>
               </div>
-            ))}
+              <div className="metricrow">
+                <span className="metricico">🧰</span>
+                <div className="grow">
+                  <div className="mk">Tools unlocked</div>
+                  <div className="mv">{unlocked}<span className="dim" style={{ fontSize: 15, color: "var(--muted)" }}>/9</span></div>
+                  <div className="meter"><span style={{ width: `${(unlocked / 9) * 100}%` }} /></div>
+                </div>
+              </div>
+              <div className="metricrow">
+                <span className="metricico">💎</span>
+                <div className="grow">
+                  <div className="mk">Plan</div>
+                  <div className="mv" style={{ color: plan === "pro" ? "var(--accent)" : "var(--ink)" }}>
+                    {plan === "pro" ? "Pro ⚡" : "Free"}
+                  </div>
+                  {plan === "free" && (
+                    <Link href="/pricing" style={{ color: "var(--accent)", fontSize: 13, fontWeight: 700 }}>
+                      Upgrade for $9/mo →
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      )}
 
-      <div className="card">
-        <h2 style={{ fontSize: 20, marginBottom: 8 }}>The GEO workflow</h2>
-        <ol style={{ marginLeft: 20, color: "var(--muted)", fontSize: 15 }}>
-          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Audit</b> — run the Live Audit on your site, get a real 0–100 AI-visibility score with evidence.</li>
-          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Fix the code</b> — generate JSON-LD, robots.txt and llms.txt with the Schema Kit; validate robots.txt separately any time.</li>
-          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Fix the content</b> — Content Checker, Headings, SERP Preview and Readability until every page is quotable.</li>
-          <li style={{ marginBottom: 8 }}><b style={{ color: "var(--ink)" }}>Measure</b> — build your 30-prompt list with the Prompt Kit and re-audit monthly. History is saved on this device.</li>
-        </ol>
+        {/* right column */}
+        <div>
+          <div className="card" style={{ marginTop: 0, background: "linear-gradient(160deg, rgba(56,189,248,.12), rgba(56,189,248,.02))" }}>
+            <div style={{ fontWeight: 800, fontSize: 15 }}>
+              {plan === "pro" ? "⚡ Pro active" : "💎 Go Pro"}
+            </div>
+            <p style={{ color: "var(--muted)", fontSize: 13, margin: "6px 0 14px" }}>
+              {plan === "pro"
+                ? "All 9 tools unlocked. New tools included as they ship."
+                : `Unlock all 9 tools for $${BILLING.monthlyDeal}/mo — or $${BILLING.lifetimeDeal} lifetime (first ${BILLING.lifetimeSeats}).`}
+            </p>
+            {plan === "free" && (
+              <Link href="/pricing" className="btn" style={{ display: "block", textAlign: "center", textDecoration: "none", padding: "11px", fontSize: 14 }}>
+                See pricing →
+              </Link>
+            )}
+          </div>
+
+          <div className="card">
+            <div style={{ fontWeight: 800, fontSize: 15 }}>Recent audits</div>
+            {history.length === 0 ? (
+              <p style={{ color: "var(--muted)", fontSize: 13.5, marginTop: 10 }}>
+                No audits yet. Run your first audit above ☝️
+              </p>
+            ) : (
+              <table className="audittable">
+                <tbody>
+                  {history.slice(0, 5).map((h, i) => (
+                    <tr key={i}>
+                      <td>
+                        <span className="scorebadge" style={{
+                          color: h.score >= 80 ? "#3ecf8e" : h.score >= 55 ? "#38bdf8" : "#f0524d",
+                          background: h.score >= 80 ? "rgba(62,207,142,.12)" : h.score >= 55 ? "rgba(56,189,248,.12)" : "rgba(240,82,77,.12)",
+                        }}>{h.score}</span>
+                      </td>
+                      <td className="url" style={{ color: "var(--muted)" }}>{h.url}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* quick actions */}
+      <div className="dashsec">Quick actions</div>
+      <p>Jump straight into any tool.</p>
+      <div className="qtiles">
+        {TOOLS.map((t) => (
+          <Link key={t.href} href={t.href} className="qtile">
+            {t.access === "pro" && plan === "free" && <span className="qlock">🔒</span>}
+            <span className="qi" style={{ background: `${t.chip}22` }}>{t.ico}</span>
+            <span className="ql">{t.label}</span>
+            <span className="qtag">{t.desc}</span>
+          </Link>
+        ))}
       </div>
 
       <footer className="no-print">Built by <b>Mr Bilal Ali</b> · AI Automation Expert</footer>
