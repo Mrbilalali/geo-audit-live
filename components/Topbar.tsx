@@ -11,6 +11,7 @@ const NAMES: Record<string, string> = {
   "/keyword-suggest": "Keyword Suggest",
   "/traffic-overview": "Traffic Overview",
   "/gsc-analyzer": "GSC Analyzer",
+  "/crm": "Client CRM",
   "/domain-intel": "Domain Intel",
   "/site-monitor": "Site Monitor",
   "/profile": "Profile",
